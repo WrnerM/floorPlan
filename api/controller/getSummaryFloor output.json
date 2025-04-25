@@ -1,0 +1,41 @@
+{
+        "name": "4F",
+        "total": {
+            "Blocked": "87",
+            "Unassigned": "0",
+            "Shared": "0",
+            "Dedicated": "0",
+            "NoPC": "0",
+            "SharedSeatsNoPC": "0",
+            "Alternate": "24",
+            "BlockedAcrylic": "0",
+            "UnassignedNoPC": "0",
+            "Support": "0",
+            "BlockedSeatNoPC": "74",
+            "NonProdNoPC": "0",
+            "NonProd": "0",
+            "total_seats": "185"
+        }
+        ,
+        "details": {        
+            "project": "Comcast NED SIK",
+            "Blocked": "87",
+            "Unassigned": "0",
+            "Shared": "0",
+            "Dedicated": "0",
+            "NoPC": "0",
+            "SharedSeatsNoPC": "0",
+            "Alternate": "24",
+            "BlockedAcrylic": "0",
+            "UnassignedNoPC": "0",
+            "Support": "0",
+            "BlockedSeatNoPC": "74",
+            "NonProdNoPC": "0",
+            "NonProd": "0",
+            "total_seats": "185"
+        }   
+}
+
+
+
+
