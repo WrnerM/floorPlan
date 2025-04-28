@@ -16,8 +16,51 @@ class SummaryFloor
       $stmt->execute();
       $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+      // if ($stmt->rowCount() > 0) {
+      //   $response = $data;
+      // } else {
+      //   $response = [];
+      // }
+
       if ($stmt->rowCount() > 0) {
-        $response = $data;
+        // Group data by "name"
+        $grouped = [];
+
+        foreach ($data as $row) {
+          $name = $row['name'];
+
+          if (!isset($grouped[$name])) {
+            $grouped[$name] = [
+              'name' => $name,
+              'total' => [],
+              'details' => []
+            ];
+          }
+
+          // Sum up values for "total"
+          foreach ($row as $key => $value) {
+            if ($key === 'name' || $key === 'project') continue;
+
+            if (!isset($grouped[$name]['total'][$key])) {
+              $grouped[$name]['total'][$key] = 0;
+            }
+
+            $grouped[$name]['total'][$key] += (int) $value;
+          }
+
+          // Add project details to details[]
+          $grouped[$name]['details'][] = $row;
+        }
+
+        // Convert totals back to strings (to match your sample output)
+        foreach ($grouped as &$group) {
+          foreach ($group['total'] as &$val) {
+            $val = (string) $val;
+          }
+        }
+
+        // Reset array keys to be numeric (optional)
+        $response = array_values($grouped);
       } else {
         $response = [];
       }
