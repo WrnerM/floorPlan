@@ -8,4 +8,4 @@ header('content-type: application/json');
 ini_set('memory_limit', -1);
 
 require('../../config/db-connect.php');
-require('../../model/SummaryFloor.php');
+require('../model/addFloor.php');

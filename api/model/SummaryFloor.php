@@ -40,7 +40,6 @@ class SummaryFloor
           // Sum up values for "total"
           foreach ($row as $key => $value) {
             if ($key === 'name' || $key === 'project') continue;
-
             if (!isset($grouped[$name]['total'][$key])) {
               $grouped[$name]['total'][$key] = 0;
             }
@@ -52,15 +51,8 @@ class SummaryFloor
           $grouped[$name]['details'][] = $row;
         }
 
-        // Convert totals back to strings (to match your sample output)
-        foreach ($grouped as &$group) {
-          foreach ($group['total'] as &$val) {
-            $val = (string) $val;
-          }
-        }
-
         // Reset array keys to be numeric (optional)
-        $response = array_values($grouped);
+        $response = $grouped;
       } else {
         $response = [];
       }
