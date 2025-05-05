@@ -47,8 +47,17 @@ class SummaryFloor
             $grouped[$name]['total'][$key] += (int) $value;
           }
 
+          $processedRow = [];
+
+          foreach ($row as $key => $value) {
+            if ($key === 'name' || $key === 'project') {
+              $processedRow[$key] = $value;
+            } else {
+              $processedRow[$key] = is_numeric($value) ? (int)$value : $value;
+            }
+          }
           // Add project details to details[]
-          $grouped[$name]['details'][] = $row;
+          $grouped[$name]['details'][] = $processedRow;
         }
 
         // Reset array keys to be numeric (optional)
