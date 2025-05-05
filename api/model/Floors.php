@@ -13,7 +13,7 @@ class Floor
 
     try {
       $sql = "SELECT 
-                a.Id AS FloorId,
+                a.Id AS FloorId, 
                 SiteId,
                 DateValid,
                 Name,
@@ -55,5 +55,10 @@ class Floor
     return $response;
   }
 
-  //public function addFloor() {}
+  public function addFloor()
+
+     
+  {
+    return "hello addFloor";
+  }
 }

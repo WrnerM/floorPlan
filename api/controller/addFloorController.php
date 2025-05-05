@@ -8,4 +8,12 @@ header('content-type: application/json');
 ini_set('memory_limit', -1);
 
 require('../../config/db-connect.php');
-require('../model/addFloor.php');
+require('../model/Floors.php');
+
+
+$addFloor = new Floor();
+$addFloor->db = $pdoConn;
+
+$response = $addFloor->addFloor();
+
+echo $response;
