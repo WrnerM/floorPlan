@@ -1,0 +1,36 @@
+
+curl -X POST http://localhost/floorPlan/api/controller/addFloorController.php \
+  -H "Content-Type: application/json" \
+  -d '[
+    {
+      "siteId": "Fairview werner",
+      "dateValid": "2021-08-01",
+      "name": "4F",
+      "comment": "Test insert werner from curl",
+      "scenario": null,
+      "position": [
+        {
+          "row": 35,
+          "col": 46,
+          "tool": "chair",
+          "color": "#d060e7",
+          "tag": "Blocked",
+          "label": null,
+          "assignId": "G",
+          "project": "Florida Werner Blue",
+          "shift": "PM"
+        }
+      ]
+    }
+  ]'
+
+  - from json, insert to database (addfloor)
+  - if editfloor also needs to edit positions
+  - how to inactive deletefloor, kung idedelete din positions in that floor
+
+
+  editfloor:
+
+  ALTER TABLE Floors
+  ADD Active BIT NOT NULL DEFAULT 1,         -- Adds an "Active" flag (1 = active, 0 = inactive)
+  DateInactive DATETIME NULL;            -- Adds optional date of inactivation
