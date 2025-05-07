@@ -1,27 +1,38 @@
 //Example JSON payload for editing a floor
 
-[
-  {
-    "floorId": 101,
-    "siteId": "Davao",
-    "dateValid": "2021-08-01",
-    "name": "Updated Floor A",
-    "comment": "New setup for Aug 1",
-    "scenario": "Shifted scenario",
-    "active": 0,
-    "date_inactive": "2025-05-07",
-    "position": [
-      {
-        "row": 1,
-        "col": 2,
-        "tool": "Drill",
-        "color": "#FF0000",
-        "tag": "A1",
-        "label": "Workstation A",
-        "assignId": 22,
-        "project": "Alpha",
-        "shift": "Night"
-      }
-    ]
-  }
-]
+
+run this in sql server to check test floor and position i used
+ - select * from Floors where SiteId='Fairview werner'
+ - select * from Positions where Project='Florida Werner Blue'
+
+
+run in terminal
+
+ curl -X POST http://localhost/floorPlan/api/controller/editFloorController.php \
+ -H "Content-Type: application/json" \
+ -d '[
+   {
+     "floorId": 524,
+     "siteId": "Fairview werner",
+     "dateValid": "2021-08-01",
+     "name": "4F Edited",
+     "comment": "Updated only floor 524", // edit this to test if editing works
+     "scenario": null,
+     "position": [
+       {
+         "row": 35,
+         "col": 46,
+         "tool": "Updated Chair",
+         "color": "#ff6600",
+         "tag": "Updated",
+         "label": "New Label A",
+         "assignId": "G",
+         "project": "Florida Werner Edited",
+         "shift": "PM"
+       }
+     ]
+   }
+ ]'
+
+
+ SELECT Id FROM Floors WHERE SiteId = 'Fairview werner' AND DateValid = '2021-08-01' AND Name = '4F';
