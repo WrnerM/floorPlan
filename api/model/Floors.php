@@ -107,4 +107,68 @@ class Floor
 
     return $response;
   }
+
+  public function editFloor($floors)
+  {
+    $response = ['success' => 1];
+
+    try {
+      $this->db->beginTransaction();
+
+      $updateFloorSql = "UPDATE Floors 
+                       SET SiteId = :siteId, DateValid = :dateValid, Name = :name, Comment = :comment, Scenario = :scenario
+                       WHERE Id = :floorId";
+      $updateFloorStmt = $this->db->prepare($updateFloorSql);
+
+      $deletePositionsSql = "DELETE FROM Positions WHERE FloorId = :floorId";
+      $deletePositionsStmt = $this->db->prepare($deletePositionsSql);
+
+      $insertPositionSql = "INSERT INTO Positions (FloorId, Row, Col, Tool, Color, Tag, Label, AssignId, Project, Shift)
+                          VALUES (:floorId, :row, :col, :tool, :color, :tag, :label, :assignId, :project, :shift)";
+      $insertPositionStmt = $this->db->prepare($insertPositionSql);
+
+      foreach ($floors as $floor) {
+        // Ensure floorId is present
+        if (!isset($floor['floorId'])) {
+          throw new Exception("Missing floorId for edit.");
+        }
+
+        $updateFloorStmt->execute([
+          ':siteId' => $floor['siteId'],
+          ':dateValid' => $floor['dateValid'],
+          ':name' => $floor['name'],
+          ':comment' => $floor['comment'],
+          ':scenario' => $floor['scenario'],
+          ':floorId' => $floor['floorId']
+        ]);
+
+        // Delete old positions
+        $deletePositionsStmt->execute([':floorId' => $floor['floorId']]);
+
+        // Insert new positions
+        foreach ($floor['position'] as $pos) {
+          $insertPositionStmt->execute([
+            ':floorId' => $floor['floorId'],
+            ':row' => $pos['row'],
+            ':col' => $pos['col'],
+            ':tool' => $pos['tool'],
+            ':color' => $pos['color'],
+            ':tag' => $pos['tag'],
+            ':label' => $pos['label'],
+            ':assignId' => $pos['assignId'],
+            ':project' => $pos['project'],
+            ':shift' => $pos['shift']
+          ]);
+        }
+      }
+
+      $this->db->commit();
+    } catch (\Throwable $th) {
+      $this->db->rollBack();
+      $response['success'] = 0;
+      $response['error'] = $th->getMessage();
+    }
+
+    return $response;
+  }
 }

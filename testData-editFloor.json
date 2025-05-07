@@ -1,0 +1,27 @@
+//Example JSON payload for editing a floor
+
+[
+  {
+    "floorId": 101,
+    "siteId": "Davao",
+    "dateValid": "2021-08-01",
+    "name": "Updated Floor A",
+    "comment": "New setup for Aug 1",
+    "scenario": "Shifted scenario",
+    "active": 0,
+    "date_inactive": "2025-05-07",
+    "position": [
+      {
+        "row": 1,
+        "col": 2,
+        "tool": "Drill",
+        "color": "#FF0000",
+        "tag": "A1",
+        "label": "Workstation A",
+        "assignId": 22,
+        "project": "Alpha",
+        "shift": "Night"
+      }
+    ]
+  }
+]
