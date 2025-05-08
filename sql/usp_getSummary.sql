@@ -8,7 +8,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-
+select max(datevalid) from Floors
  
  
 
@@ -17,7 +17,7 @@ GO
 
 CREATE OR ALTER                         procedure [dbo].[usp_floor_summary](
 
-	@dateValid as nvarchar(50),
+	@dateValid as nvarchar(50) = NULL,
 
 	@site as nvarchar(20) = NULL
 
@@ -40,11 +40,18 @@ as begin
 	declare @cols_def nvarchar(max);
 
 	DECLARE @site_filter NVARCHAR(MAX) = '';
+	declare @date_filter nvarchar(max) = '';
 
 	IF @site IS NOT NULL AND LTRIM(RTRIM(@site)) <> ''
     BEGIN
         SET @site_filter = ' AND siteid = ''' + @site + '''';
     END
+
+	IF @dateValid IS NOT NULL AND LTRIM(RTRIM(@dateValid)) <> ''
+    BEGIN
+        SET @date_filter = ' AND dateValid = ''' + @dateValid + '''';
+    END
+		
  
 	insert into @tbl
 
@@ -60,7 +67,7 @@ as begin
  
  
 	set @query = N'
-
+				
 				select name, project, '+@pvt_columns+','+@cols_def+' as total_seats
 
 				from (
@@ -69,7 +76,7 @@ as begin
 
 						inner join floors b on a.floorid = b.id
 
-					where dateValid = '''+@dateValid+''' ' + @site_filter + '
+					where project is not null '+@date_filter+' ' + @site_filter + '
 
 				) as src
 
@@ -77,7 +84,7 @@ as begin
 
 					COUNT(floorid) for tag in ('+@pvt_columns+')
 
-				) as pvt_table;
+				) as pvt_table order by name;
 
 		';
  
