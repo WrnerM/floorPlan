@@ -42,4 +42,6 @@ curl -X POST http://localhost/floorPlan/api/controller/addFloorController.php \
 
   ALTER TABLE Floors
   ADD Active BIT NOT NULL DEFAULT 1,         -- Adds an "Active" flag (1 = active, 0 = inactive)
-  DateInactive DATETIME NULL;            -- Adds optional date of inactivation
+  DateInactive DATETIME NULL;               -- Adds optional date of inactivation
+
+  
