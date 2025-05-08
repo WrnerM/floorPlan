@@ -115,6 +115,19 @@ class Floor
     try {
       $this->db->beginTransaction();
 
+      $checkSqlColumn = "IF COL_LENGTH('Floors', 'Active') IS NULL
+                            BEGIN
+                            ALTER TABLE Floors ADD Active BIT NULL;
+                            END;
+                            UPDATE Floors SET Active = 0 WHERE Active IS NULL;
+
+                            IF COL_LENGTH('Floors', 'Date_inactive') IS NULL
+                            BEGIN
+                            ALTER TABLE Floors ADD Date_inactive DATETIME NULL;
+                            END;";
+
+      $this->db->exec($checkSqlColumn);
+
       $updateFloorSql = "UPDATE Floors 
                        SET SiteId = :siteId, DateValid = :dateValid, Name = :name, Comment = :comment, Scenario = :scenario
                        WHERE Id = :floorId";

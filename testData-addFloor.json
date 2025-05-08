@@ -9,6 +9,8 @@ curl -X POST http://localhost/floorPlan/api/controller/addFloorController.php \
       "name": "4F",
       "comment": "Test insert werner from curl",
       "scenario": null,
+      "Active": 0,
+      "Date_inactive": null,
       "position": [
         {
           "row": 35,
@@ -28,20 +30,36 @@ curl -X POST http://localhost/floorPlan/api/controller/addFloorController.php \
 
 /* test data for Postman */
 
- select POST
- paste the link: http://localhost/floorPlan/api/controller/addFloorController.php
+  - select POST
+  - paste the link: http://localhost/floorPlan/api/controller/addFloorController.php
+  - select Body, then raw JSON
+  - paste the raw JSON body:
+  [
+    {
+      "siteId": "Fairview werner",
+      "dateValid": "2021-08-01",
+      "name": "4F",
+      "comment": "Test insert werner from curl",
+      "scenario": null,
+      "Active": 0,
+      "Date_inactive": null,
+      "position": [
+        {
+          "row": 35,
+          "col": 46,
+          "tool": "chair",
+          "color": "#d060e7",
+          "tag": "Blocked",
+          "label": null,
+          "assignId": "G",
+          "project": "Florida Werner Blue",
+          "shift": "PM"
+        }
+      ]
+    }
+  ]
  
 
-
-  - from json, insert to database (addfloor)
-  - if editfloor also needs to edit positions
-  - how to inactive deletefloor, kung idedelete din positions in that floor
-
-
-  editfloor:
-
-  ALTER TABLE Floors
-  ADD Active BIT NOT NULL DEFAULT 1,         -- Adds an "Active" flag (1 = active, 0 = inactive)
-  DateInactive DATETIME NULL;               -- Adds optional date of inactivation
-
+ May 08,2025 changes:
+ - added Active and Date_inactive parameter (both can be null)
   

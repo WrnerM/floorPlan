@@ -16,8 +16,10 @@ run in terminal
      "siteId": "Fairview werner",
      "dateValid": "2021-08-01",
      "name": "4F Edited",
-     "comment": "Updated only floor 524", // edit this to test if editing works
+     "comment": "Updated only floor 524 with new columns",
      "scenario": null,
+     "Active": 0,
+     "Date_inactive": null,
      "position": [
        {
          "row": 35,
@@ -27,12 +29,16 @@ run in terminal
          "tag": "Updated",
          "label": "New Label A",
          "assignId": "G",
-         "project": "Florida Werner Edited",
+         "project": "Florida Werner Edited with new columns",
          "shift": "PM"
        }
      ]
    }
  ]'
 
+ run this in sql server to check changes:
+ "select * from Floors where Id = '524'"
 
- SELECT Id FROM Floors WHERE SiteId = 'Fairview werner' AND DateValid = '2021-08-01' AND Name = '4F';
+
+May 08,2025 changes:
+ - added Active and Date_inactive parameter (both can be null)
