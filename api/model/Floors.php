@@ -136,6 +136,7 @@ class Floor
       $deletePositionsSql = "DELETE FROM Positions WHERE FloorId = :floorId";
       $deletePositionsStmt = $this->db->prepare($deletePositionsSql);
 
+
       $insertPositionSql = "INSERT INTO Positions (FloorId, Row, Col, Tool, Color, Tag, Label, AssignId, Project, Shift)
                           VALUES (:floorId, :row, :col, :tool, :color, :tag, :label, :assignId, :project, :shift)";
       $insertPositionStmt = $this->db->prepare($insertPositionSql);
@@ -184,4 +185,6 @@ class Floor
 
     return $response;
   }
+
+  public function deleteFloor() {}
 }
