@@ -10,27 +10,19 @@ class Scenario
 
     try {
       $sql = "SELECT 
-                  a.Id AS FloorId,
-                  SiteId,
-                  DateValid,
-                  Name,
-                  Comment,
-                  Scenario,
-                  b.Id AS PositionId,
-                  Row,
-                  Col,
-                  Tool,
-                  Color,
-                  Tag,
-                  Label,
-                  AssignId,
-                  Project,
-                  Shift
-                FROM Floors as a
-                INNER JOIN Positions as b ON b.FloorId = a.Id
-                WHERE SiteId = :site
-                ORDER BY a.Id, b.Id
-                ";
+                a.Id AS FloorId,
+                SiteId,
+                DateValid,
+                Name,
+                Comment,
+                Scenario,
+                b.*
+              FROM Floors as a
+              INNER JOIN Positions_active as b ON b.FloorId = a.Id
+              WHERE SiteId = :site
+              AND Scenario is NOT NULL
+              ORDER BY a.Id, b.Id
+              ";
 
       $stmt = $this->db->prepare($sql);
       $stmt->bindParam(':site', $this->site, PDO::PARAM_STR);

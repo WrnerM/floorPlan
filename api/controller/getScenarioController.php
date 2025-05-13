@@ -39,7 +39,6 @@ foreach ($response as $row) {
   }
 
   $currentFloor['position'][] = [
-    "id" => $row['PositionId'],
     "floorId" => $row['FloorId'],
     "row" => $row['Row'],
     "col" => $row['Col'],
