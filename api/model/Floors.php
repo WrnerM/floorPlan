@@ -19,25 +19,15 @@ class Floor
                 Name,
                 Comment,
                 Scenario,
-                b.Id AS PositionId,
-                Row,
-                Col,
-                Tool,
-                Color,
-                Tag,
-                Label,
-                AssignId,
-                Project,
-                Shift
+                b.*
               FROM Floors as a
-              INNER JOIN Positions as b ON b.FloorId = a.Id
-              WHERE SiteId = :site AND DateValid = :date
+              INNER JOIN Positions_active as b ON b.FloorId = a.Id
+              WHERE SiteId = :site
               ORDER BY a.Id, b.Id
               ";
 
       $stmt = $this->db->prepare($sql);
       $stmt->bindParam(':site', $this->site, PDO::PARAM_STR);
-      $stmt->bindParam(':date', $this->date, PDO::PARAM_STR);
       $stmt->execute();
       $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

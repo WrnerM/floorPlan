@@ -21,7 +21,6 @@ require('../model/Floors.php');
 $floor = new Floor();
 $floor->db = $pdoConn;
 $floor->site = $_GET['site'];
-$floor->date = $_GET['date'];
 $response = $floor->getFloor();
 
 $output = [];
@@ -47,7 +46,6 @@ foreach ($response as $row) {
   }
 
   $currentFloor['position'][] = [
-    "id" => $row['PositionId'],
     "floorId" => $row['FloorId'],
     "row" => $row['Row'],
     "col" => $row['Col'],
