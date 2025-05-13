@@ -3,7 +3,7 @@
 class Client
 {
   public $db = null;
-  public $site = null;
+  public $location_ident = null;
 
 
   public function getClient()
@@ -12,13 +12,14 @@ class Client
 
     try {
 
-      $sql = "SELECT client_ident, client_name FROM client_location_list WHERE location_ident=:site";
+      $sql = "SELECT distinct account_full_name
+                from TPSWEB.[dbo].SC_CONFIG
+              where status <>'Dark' and location_ident = :location_ident
+              order by account_full_name";
       $stmt = $this->db->prepare($sql);
-      $stmt->bindParam(':site', $this->site, PDO::PARAM_STR);
+      $stmt->bindParam(':location_ident', $this->location_ident, PDO::PARAM_STR);
       $stmt->execute();
       $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-      //$response['success'] = 1;
 
       if ($stmt->rowCount() > 0) {
         $response = $data;

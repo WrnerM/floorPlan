@@ -9,7 +9,18 @@ class Site
     $response = [];
 
     try {
-      $sql = "SELECT SiteId as site, name as floorName, DateValid from Floors";
+      $sql = "SELECT * from (
+              SELECT 
+                    S.[location_ident]
+                    ,S.[location_name]
+                    ,S.[short_name]
+                    ,F.[Name] as floor_number
+                    ,F.[comment]
+                    ,F.[Id] as floor_id
+                  ,row_number() over(partition by name, short_name order by datevalid desc) as rowNum
+                FROM [Floorplan].[dbo].[Sites] AS S 
+                LEFT JOIN [Floorplan].[dbo].[Floors] AS F ON S.short_name = F.SiteId
+                ) as x where rowNum = 1 order by short_name, floor_number";
       $stmt = $this->db->prepare($sql);
       $stmt->execute();
       $data = $stmt->fetchAll(PDO::FETCH_ASSOC);

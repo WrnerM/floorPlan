@@ -14,7 +14,7 @@ require('../model/Clients.php');
 
 $client = new Client();
 $client->db = $pdoConn;
-$client->site = $_GET['site'];
+$client->location_ident = $_GET['location_ident'];
 
 $response = $client->getClient();
 

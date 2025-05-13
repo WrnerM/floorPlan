@@ -22,34 +22,35 @@ $site = new Site();
 $site->db = $pdoConn;
 $response = $site->getSite();
 
-$result = [];
-
+$output = [];
+$currentLocationId = null;
+$currentLocation = null;
 
 foreach ($response as $row) {
-  $site = $row['site'];
-  $floor = $row['floorName'];
-  $date = $row['DateValid'];
+  if ($row['short_name'] !== $currentLocationId) {
+    if ($currentLocation !== null) {
+      $output[] = $currentLocation;
+    }
 
-  if (!isset($result[$site])) {
-    $result[$site] = [
-      'site' => $site,
-      'floorName' => [],
-      'dateValid' => []
+    $currentLocationId = $row['short_name'];
+    $currentLocation = [
+      "location_ident" => $row['location_ident'],
+      "location_name" => $row['location_name'],
+      "short_name" => $row['short_name'],
+      "floors" => []
     ];
   }
 
-  if (!in_array($floor, $result[$site]['floorName'])) {
-    $result[$site]['floorName'][] = $floor;
-  }
+  $currentLocation['floors'][] = [
+    "floorID" => $row['floor_id'],
+    "floorNumber" => $row['floor_number'],
+    "comment" => $row['comment']
+  ];
+}
 
-  if (!in_array($date, $result[$site]['dateValid'])) {
-    $result[$site]['dateValid'][] = $date;
-  }
-
-  // Always add the dateValid (even if floorName is repeated)
-  //$result[$site]['dateValid'][] = $date;
-
-  $output = array_values($result);
+// Add the last floor
+if ($currentLocation !== null) {
+  $output[] = $currentLocation;
 }
 
 echo json_encode($output, JSON_PRETTY_PRINT);;

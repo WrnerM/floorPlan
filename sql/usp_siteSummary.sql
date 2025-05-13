@@ -1,7 +1,7 @@
 USE [FloorPlan]
 GO
 
-/****** Object:  StoredProcedure [dbo].[usp_site_summary]    Script Date: 5/8/2025 12:46:12 AM ******/
+/****** Object:  StoredProcedure [dbo].[usp_site_summary]    Script Date: 13/05/2025 11:20:11 pm ******/
 SET ANSI_NULLS ON
 GO
 
@@ -9,12 +9,15 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 
---exec [usp_site_summary] @dateValid = '2022-09-07 00:00:00.0000000'
 
-CREATE OR ALTER                         procedure [dbo].[usp_site_summary](
+ 
+ 
 
-	@dateValid as nvarchar(50)
 
+--exec [usp_site_summary] @dateValid = '2021-06-11 00:00:00.00000'
+
+CREATE OR ALTER                           procedure [dbo].[usp_site_summary](
+	@dateValid as nvarchar(50) = null
 )
 
 as begin 
@@ -22,15 +25,11 @@ as begin
 	set nocount on
  
 	declare @tbl as table (
-
 		tags varchar(50)
-
 	)
  
 	declare @query nvarchar(max); 
-
 	declare @pvt_columns nvarchar(max);
-
 	declare @cols_def nvarchar(max);
  
 	insert into @tbl
@@ -44,29 +43,33 @@ as begin
 			@cols_def = STRING_AGG(QUOTENAME(tags), ' + ')
 
 	from (select tags FROM @tbl) as z;
- 
- 
-	set @query = N'
 
+
+	IF @dateValid IS NOT NULL AND LTRIM(RTRIM(@dateValid)) <> ''
+		BEGIN
+			set @query = N'
 				select siteid, '+@pvt_columns+','+@cols_def+' as total_seats
-
 				from (
-
 					select floorid, siteid, tag from positions a
-
 						inner join floors b on a.floorid = b.id
-
 					where dateValid = '''+@dateValid+'''
-
 				) as src
-
 				pivot (
-
 					COUNT(floorid) for tag in ('+@pvt_columns+')
-
-				) as pvt_table;
-
-		';
+				) as pvt_table;';
+		END
+	ELSE 
+		BEGIN 
+			set @query = N'
+				select siteid, '+@pvt_columns+','+@cols_def+' as total_seats
+				from (
+					select floorid, siteid, tag from positions_active a
+						inner join floors b on a.floorid = b.id
+				) as src
+				pivot (
+					COUNT(floorid) for tag in ('+@pvt_columns+')
+				) as pvt_table;';
+		END;
  
 	execute(@query);
  
