@@ -20,7 +20,7 @@ class Site
                   ,row_number() over(partition by name, short_name order by datevalid desc) as rowNum
                 FROM [Floorplan].[dbo].[Sites] AS S 
                 LEFT JOIN [Floorplan].[dbo].[Floors] AS F ON S.short_name = F.SiteId
-                ) as x where rowNum = 1";
+                ) as x where rowNum = 1 order by short_name, floor_number";
       $stmt = $this->db->prepare($sql);
       $stmt->execute();
       $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
