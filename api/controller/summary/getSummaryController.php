@@ -15,7 +15,7 @@ $summary = new Summary();
 $summary->db = $pdoConn;
 $summary->site = isset($_GET['site']) ? $_GET['site'] : null;
 
-$summary->dateValid = $_GET['dateValid'];
+$summary->dateValid = isset($_GET['dateValid']) ? $_GET['dateValid'] : null;
 
 
 $response = $summary->getSummary();

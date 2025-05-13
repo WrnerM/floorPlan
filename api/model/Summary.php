@@ -7,10 +7,31 @@ class Summary
   public $site = null;
   public $dateValid = null;
 
+  public function getLatestDateValid()
+  {
+    $sql = "SELECT MAX(dateValid) AS latestDateValid FROM Floors WHERE siteID = :site";
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindParam(':site', $this->site);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['latestDateValid'] : null;
+  }
+
+
   public function getSummary()
   {
+    $sql = null;
 
     try {
+
+      if (!$this->dateValid) {
+        $this->dateValid = $this->getLatestDateValid();
+      }
+
+      if (!$this->dateValid || !$this->site) {
+        return ['success' => 0, 'error' => 'Missing dateValid or site parameter'];
+      }
+
       $sql = "exec [usp_floor_summary] @dateValid = '{$this->dateValid}', @site = '{$this->site}'";
       $stmt = $this->db->prepare($sql);
       $stmt->execute();
