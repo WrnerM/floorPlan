@@ -6,6 +6,8 @@ class Floor
   public $db;
   public $site = null;
   public $date = null;
+  public $floorId = null;
+
 
 
   public function getFloor()
@@ -176,5 +178,30 @@ class Floor
     return $response;
   }
 
-  public function deleteFloor() {}
+  public function deleteFloor()
+  {
+
+
+    try {
+
+
+      $this->db->beginTransaction();
+      $sql = "DELETE FROM Positions WHERE floorId = :floorId";
+      $stmt = $this->db->prepare($sql);
+      $stmt->bindParam(':floorId', $this->floorId, PDO::PARAM_STR);
+      $stmt->execute();
+
+      $this->db->commit();
+
+      $response = ['success' => 1];
+    } catch (\Throwable $th) {
+      $response['success'] = 0;
+      $response['error'] = $th->getMessage();
+      $response['sql'] = $sql ?? '';
+
+      $this->db->rollBack();
+    }
+
+    return $response;
+  }
 }
