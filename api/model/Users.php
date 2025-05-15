@@ -24,7 +24,6 @@ class Users
   public function addUser($params)
   {
     try {
-      // Validate user_role
       $allowedRoles = ['User', 'Admin'];
       if (!in_array($params['user_role'], $allowedRoles)) {
         return [
@@ -33,7 +32,6 @@ class Users
         ];
       }
 
-      // Check if user already exists by bms_ident
       $checkSql = "SELECT COUNT(*) FROM Users WHERE bms_ident = :bms_ident";
       $checkStmt = $this->db->prepare($checkSql);
       $checkStmt->bindParam(':bms_ident', $params['bms_ident']);
@@ -47,7 +45,6 @@ class Users
         ];
       }
 
-      // Prepare insert with current timestamp
       $insertSql = "INSERT INTO Users (
                     bms_ident, full_name, nt, user_email, user_role, inserted_date_time_ph
                   ) VALUES (
@@ -83,7 +80,6 @@ class Users
   public function editUser($params)
   {
     try {
-      // Validate user_role
       $allowedRoles = ['User', 'Admin'];
       if (!in_array($params['user_role'], $allowedRoles)) {
         return [
@@ -92,7 +88,6 @@ class Users
         ];
       }
 
-      // Check if user exists by bms_ident
       $checkSql = "SELECT COUNT(*) FROM Users WHERE bms_ident = :bms_ident";
       $checkStmt = $this->db->prepare($checkSql);
       $checkStmt->bindParam(':bms_ident', $params['bms_ident']);
@@ -105,7 +100,6 @@ class Users
         ];
       }
 
-      // Update user
       $updateSql = "UPDATE Users SET 
                     full_name = :full_name,
                     nt = :nt,
