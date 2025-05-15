@@ -9,3 +9,8 @@ curl -X POST http://localhost/floorPlan/api/controller/user/editUserController.p
   }'
 
   
+  curl -X POST http://localhost/floorPlan/api/controller/user/deleteUserController.php \
+  -H "Content-Type: application/json" \
+  -d '{
+    "bms_ident": "100001"
+  }'

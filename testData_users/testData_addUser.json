@@ -1,9 +1,9 @@
 curl -X POST http://localhost/floorPlan/api/controller/user/addUserController.php \
   -H "Content-Type: application/json" \
   -d '{
-    "bms_ident": "1000011",
+    "bms_ident": "10000113",
     "full_name": "Werner Montala",
     "nt": "NT456",
     "user_email": "wernertesting@example.com",
-    "user_role": "User"
+    "user_role": "Admin"
   }'

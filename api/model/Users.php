@@ -134,4 +134,37 @@ class Users
       ];
     }
   }
+
+  public function deleteUser($bms_ident)
+  {
+
+    try {
+      $checkSql = "SELECT COUNT(*) FROM Users WHERE bms_ident = :bms_ident";
+      $checkStmt = $this->db->prepare($checkSql);
+      $checkStmt->bindParam(':bms_ident', $bms_ident);
+      $checkStmt->execute();
+
+      if ($checkStmt->fetchColumn() == 0) {
+        return [
+          'success' => 0,
+          'error' => 'User not found!'
+        ];
+      }
+
+      $deleteSql = "DELETE FROM Users WHERE bms_ident = :bms_ident";
+      $stmt = $this->db->prepare($deleteSql);
+      $stmt->bindParam(':bms_ident', $bms_ident);
+      $stmt->execute();
+
+      return [
+        'success' => 1,
+        'message' => 'User deleted successfully'
+      ];
+    } catch (\Throwable $th) {
+      return [
+        'success' => 0,
+        'error' => $th->getMessage()
+      ];
+    }
+  }
 }
