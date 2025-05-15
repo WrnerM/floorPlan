@@ -79,4 +79,59 @@ class Users
       ];
     }
   }
+
+  public function editUser($params)
+  {
+    try {
+      // Validate user_role
+      $allowedRoles = ['User', 'Admin'];
+      if (!in_array($params['user_role'], $allowedRoles)) {
+        return [
+          'success' => 0,
+          'error' => 'Invalid user_role. Only "User" or "Admin" are allowed.'
+        ];
+      }
+
+      // Check if user exists by bms_ident
+      $checkSql = "SELECT COUNT(*) FROM Users WHERE bms_ident = :bms_ident";
+      $checkStmt = $this->db->prepare($checkSql);
+      $checkStmt->bindParam(':bms_ident', $params['bms_ident']);
+      $checkStmt->execute();
+
+      if ($checkStmt->fetchColumn() == 0) {
+        return [
+          'success' => 0,
+          'error' => 'User not found'
+        ];
+      }
+
+      // Update user
+      $updateSql = "UPDATE Users SET 
+                    full_name = :full_name,
+                    nt = :nt,
+                    user_email = :user_email,
+                    user_role = :user_role
+                  WHERE bms_ident = :bms_ident";
+
+      $stmt = $this->db->prepare($updateSql);
+
+      $stmt->bindParam(':full_name', $params['full_name']);
+      $stmt->bindParam(':nt', $params['nt']);
+      $stmt->bindParam(':user_email', $params['user_email']);
+      $stmt->bindParam(':user_role', $params['user_role']);
+      $stmt->bindParam(':bms_ident', $params['bms_ident']);
+
+      $stmt->execute();
+
+      return [
+        'success' => 1,
+        'message' => 'User updated successfully'
+      ];
+    } catch (\Throwable $th) {
+      return [
+        'success' => 0,
+        'error' => $th->getMessage()
+      ];
+    }
+  }
 }

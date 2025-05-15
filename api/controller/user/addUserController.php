@@ -9,10 +9,8 @@ ini_set('memory_limit', -1);
 require('../../../config/db-connect.php');
 require('../../model/Users.php');
 
-// Parse JSON input
 $input = json_decode(file_get_contents("php://input"), true);
 
-// Validate required fields
 $required = ['bms_ident', 'full_name', 'nt', 'user_email', 'user_role'];
 foreach ($required as $field) {
   if (empty($input[$field])) {
