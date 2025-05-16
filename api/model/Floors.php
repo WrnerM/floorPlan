@@ -48,7 +48,6 @@ class Floor
   }
 
   public function addFloor($floors)
-
   {
     $response = ['success' => 1];
 
@@ -59,11 +58,14 @@ class Floor
                        VALUES (:siteId, :dateValid, :name, :comment, :scenario)";
       $insertFloorStmt = $this->db->prepare($insertFloorSql);
 
-      $insertPositionSql = "INSERT INTO Positions (FloorId, Row, Col, Tool, Color, Tag, Label, AssignId, Project, Shift) 
+      $insertPositionSql = "INSERT INTO Positions_Active (FloorId, Row, Col, Tool, Color, Tag, Label, AssignId, Project, Shift) 
                           VALUES (:floorId, :row, :col, :tool, :color, :tag, :label, :assignId, :project, :shift)";
       $insertPositionStmt = $this->db->prepare($insertPositionSql);
 
       foreach ($floors as $floor) {
+        $siteID = $floor['siteId'];
+        $name = $floor['name'];
+
         $insertFloorStmt->execute([
           ':siteId' => $floor['siteId'],
           ':dateValid' => $floor['dateValid'],
@@ -88,85 +90,30 @@ class Floor
             ':shift' => $pos['shift']
           ]);
         }
+
+        //DELETE Floor ID not included on the latest dateValid.
+        $sql = "WITH floorCTE AS (
+                    SELECT * 
+                    FROM (
+                        SELECT 
+                            id AS floorIdent, 
+                            siteid, 
+                            name, 
+                            ROW_NUMBER() OVER(PARTITION BY name, siteid ORDER BY datevalid DESC) AS rowNum 
+                        FROM floors 
+                        WHERE siteid = :siteName AND name = :floorname AND scenario IS NULL
+                    ) AS z 
+                    WHERE rowNum > 1
+                )
+                DELETE a
+                FROM positions_active a
+                INNER JOIN floorCTE b ON a.FloorId = b.floorIdent;";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':siteName', $siteID, PDO::PARAM_STR);
+        $stmt->bindParam(':floorname', $name, PDO::PARAM_STR);
+        $stmt->execute();
       }
 
-      $this->db->commit();
-    } catch (\Throwable $th) {
-      $this->db->rollBack();
-      $response['success'] = 0;
-      $response['error'] = $th->getMessage();
-    }
-
-    return $response;
-  }
-
-  public function editFloor($floors)
-  {
-    $response = ['success' => 1];
-
-    try {
-      $this->db->beginTransaction();
-
-      $checkSqlColumn = "IF COL_LENGTH('Floors', 'Active') IS NULL
-                            BEGIN
-                            ALTER TABLE Floors ADD Active BIT NULL;
-                            END;
-                            UPDATE Floors SET Active = 0 WHERE Active IS NULL;
-
-                            IF COL_LENGTH('Floors', 'Date_inactive') IS NULL
-                            BEGIN
-                            ALTER TABLE Floors ADD Date_inactive DATETIME NULL;
-                            END;";
-
-      $this->db->exec($checkSqlColumn);
-
-      $updateFloorSql = "UPDATE Floors 
-                       SET SiteId = :siteId, DateValid = :dateValid, Name = :name, Comment = :comment, Scenario = :scenario
-                       WHERE Id = :floorId";
-      $updateFloorStmt = $this->db->prepare($updateFloorSql);
-
-      $deletePositionsSql = "DELETE FROM Positions WHERE FloorId = :floorId";
-      $deletePositionsStmt = $this->db->prepare($deletePositionsSql);
-
-
-      $insertPositionSql = "INSERT INTO Positions (FloorId, Row, Col, Tool, Color, Tag, Label, AssignId, Project, Shift)
-                          VALUES (:floorId, :row, :col, :tool, :color, :tag, :label, :assignId, :project, :shift)";
-      $insertPositionStmt = $this->db->prepare($insertPositionSql);
-
-      foreach ($floors as $floor) {
-        // Ensure floorId is present
-        if (!isset($floor['floorId'])) {
-          throw new Exception("Missing floorId for edit.");
-        }
-
-        $updateFloorStmt->execute([
-          ':siteId' => $floor['siteId'],
-          ':dateValid' => $floor['dateValid'],
-          ':name' => $floor['name'],
-          ':comment' => $floor['comment'],
-          ':scenario' => $floor['scenario'],
-          ':floorId' => $floor['floorId']
-        ]);
-
-        // Delete old positions
-        $deletePositionsStmt->execute([':floorId' => $floor['floorId']]);
-
-        // Insert new positions
-        foreach ($floor['position'] as $pos) {
-          $insertPositionStmt->execute([
-            ':floorId' => $floor['floorId'],
-            ':row' => $pos['row'],
-            ':col' => $pos['col'],
-            ':tool' => $pos['tool'],
-            ':color' => $pos['color'],
-            ':tag' => $pos['tag'],
-            ':label' => $pos['label'],
-            ':assignId' => $pos['assignId'],
-            ':project' => $pos['project'],
-            ':shift' => $pos['shift']
-          ]);
-        }
-      }
 
       $this->db->commit();
     } catch (\Throwable $th) {
@@ -178,30 +125,108 @@ class Floor
     return $response;
   }
 
-  public function deleteFloor()
-  {
+  // public function editFloor($floors)
+  // {
+  //   $response = ['success' => 1];
+
+  //   try {
+  //     $this->db->beginTransaction();
+
+  //     $checkSqlColumn = "IF COL_LENGTH('Floors', 'Active') IS NULL
+  //                           BEGIN
+  //                           ALTER TABLE Floors ADD Active BIT NULL;
+  //                           END;
+  //                           UPDATE Floors SET Active = 0 WHERE Active IS NULL;
+
+  //                           IF COL_LENGTH('Floors', 'Date_inactive') IS NULL
+  //                           BEGIN
+  //                           ALTER TABLE Floors ADD Date_inactive DATETIME NULL;
+  //                           END;";
+
+  //     $this->db->exec($checkSqlColumn);
+
+  //     $updateFloorSql = "UPDATE Floors 
+  //                      SET SiteId = :siteId, DateValid = :dateValid, Name = :name, Comment = :comment, Scenario = :scenario
+  //                      WHERE Id = :floorId";
+  //     $updateFloorStmt = $this->db->prepare($updateFloorSql);
+
+  //     $deletePositionsSql = "DELETE FROM Positions WHERE FloorId = :floorId";
+  //     $deletePositionsStmt = $this->db->prepare($deletePositionsSql);
 
 
-    try {
+  //     $insertPositionSql = "INSERT INTO Positions (FloorId, Row, Col, Tool, Color, Tag, Label, AssignId, Project, Shift)
+  //                         VALUES (:floorId, :row, :col, :tool, :color, :tag, :label, :assignId, :project, :shift)";
+  //     $insertPositionStmt = $this->db->prepare($insertPositionSql);
+
+  //     foreach ($floors as $floor) {
+  //       // Ensure floorId is present
+  //       if (!isset($floor['floorId'])) {
+  //         throw new Exception("Missing floorId for edit.");
+  //       }
+
+  //       $updateFloorStmt->execute([
+  //         ':siteId' => $floor['siteId'],
+  //         ':dateValid' => $floor['dateValid'],
+  //         ':name' => $floor['name'],
+  //         ':comment' => $floor['comment'],
+  //         ':scenario' => $floor['scenario'],
+  //         ':floorId' => $floor['floorId']
+  //       ]);
+
+  //       // Delete old positions
+  //       $deletePositionsStmt->execute([':floorId' => $floor['floorId']]);
+
+  //       // Insert new positions
+  //       foreach ($floor['position'] as $pos) {
+  //         $insertPositionStmt->execute([
+  //           ':floorId' => $floor['floorId'],
+  //           ':row' => $pos['row'],
+  //           ':col' => $pos['col'],
+  //           ':tool' => $pos['tool'],
+  //           ':color' => $pos['color'],
+  //           ':tag' => $pos['tag'],
+  //           ':label' => $pos['label'],
+  //           ':assignId' => $pos['assignId'],
+  //           ':project' => $pos['project'],
+  //           ':shift' => $pos['shift']
+  //         ]);
+  //       }
+  //     }
+
+  //     $this->db->commit();
+  //   } catch (\Throwable $th) {
+  //     $this->db->rollBack();
+  //     $response['success'] = 0;
+  //     $response['error'] = $th->getMessage();
+  //   }
+
+  //   return $response;
+  // }
+
+  // public function deleteFloor()
+  // {
 
 
-      $this->db->beginTransaction();
-      $sql = "DELETE FROM Positions WHERE floorId = :floorId";
-      $stmt = $this->db->prepare($sql);
-      $stmt->bindParam(':floorId', $this->floorId, PDO::PARAM_STR);
-      $stmt->execute();
+  //   try {
 
-      $this->db->commit();
 
-      $response = ['success' => 1];
-    } catch (\Throwable $th) {
-      $response['success'] = 0;
-      $response['error'] = $th->getMessage();
-      $response['sql'] = $sql ?? '';
+  //     $this->db->beginTransaction();
+  //     $sql = "DELETE FROM Positions_Active WHERE floorId = :floorId";
+  //     $stmt = $this->db->prepare($sql);
+  //     $stmt->bindParam(':floorId', $this->floorId, PDO::PARAM_STR);
+  //     $stmt->execute();
 
-      $this->db->rollBack();
-    }
+  //     $this->db->commit();
 
-    return $response;
-  }
+  //     $response = ['success' => 1];
+  //   } catch (\Throwable $th) {
+  //     $response['success'] = 0;
+  //     $response['error'] = $th->getMessage();
+  //     $response['sql'] = $sql ?? '';
+
+  //     $this->db->rollBack();
+  //   }
+
+  //   return $response;
+  // }
 }
