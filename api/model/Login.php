@@ -1,6 +1,6 @@
 <?php
 
-class Login{
+class LoginClass{
     public $db = null;
     public $userNT = null;
     public $password = null;
