@@ -125,6 +125,85 @@ class Floor
     return $response;
   }
 
+
+  public function addScenario($floors)
+  {
+    $response = ['success' => 1];
+
+    try {
+      $this->db->beginTransaction();
+
+      $insertFloorSql = "INSERT INTO Floors (SiteId, DateValid, Name, Comment, Scenario) 
+                       VALUES (:siteId, :dateValid, :name, :comment, :scenario)";
+      $insertFloorStmt = $this->db->prepare($insertFloorSql);
+
+      $insertPositionSql = "INSERT INTO Positions_Active (FloorId, Row, Col, Tool, Color, Tag, Label, AssignId, Project, Shift) 
+                          VALUES (:floorId, :row, :col, :tool, :color, :tag, :label, :assignId, :project, :shift)";
+      $insertPositionStmt = $this->db->prepare($insertPositionSql);
+
+      foreach ($floors as $floor) {
+        $siteID = $floor['siteId'];
+        $name = $floor['name'];
+
+        $insertFloorStmt->execute([
+          ':siteId' => $floor['siteId'],
+          ':dateValid' => $floor['dateValid'],
+          ':name' => $floor['name'],
+          ':comment' => $floor['comment'],
+          ':scenario' => $floor['scenario']
+        ]);
+
+        $floorId = $this->db->lastInsertId();
+
+        foreach ($floor['position'] as $pos) {
+          $insertPositionStmt->execute([
+            ':floorId' => $floorId,
+            ':row' => $pos['row'],
+            ':col' => $pos['col'],
+            ':tool' => $pos['tool'],
+            ':color' => $pos['color'],
+            ':tag' => $pos['tag'],
+            ':label' => $pos['label'],
+            ':assignId' => $pos['assignId'],
+            ':project' => $pos['project'],
+            ':shift' => $pos['shift']
+          ]);
+        }
+
+        //DELETE Floor ID not included on the latest dateValid.
+        $sql = "WITH floorCTE AS (
+                    SELECT * 
+                    FROM (
+                        SELECT 
+                            id AS floorIdent, 
+                            siteid, 
+                            name, 
+                            ROW_NUMBER() OVER(PARTITION BY name, siteid ORDER BY datevalid DESC) AS rowNum 
+                        FROM floors 
+                        WHERE siteid = :siteName AND name = :floorname AND scenario IS NOT NULL
+                    ) AS z 
+                    WHERE rowNum > 1
+                )
+                DELETE a
+                FROM positions_active a
+                INNER JOIN floorCTE b ON a.FloorId = b.floorIdent;";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':siteName', $siteID, PDO::PARAM_STR);
+        $stmt->bindParam(':floorname', $name, PDO::PARAM_STR);
+        $stmt->execute();
+      }
+
+
+      $this->db->commit();
+    } catch (\Throwable $th) {
+      $this->db->rollBack();
+      $response['success'] = 0;
+      $response['error'] = $th->getMessage();
+    }
+
+    return $response;
+  }
+
   // public function editFloor($floors)
   // {
   //   $response = ['success' => 1];

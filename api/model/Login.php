@@ -2,8 +2,9 @@
 
 class Login{
     public $db = null;
-    public $userNT = '';
-    public $password = '';
+    public $userNT = null;
+    public $password = null;
+    public $bms_ident = null;
    
 
     public function login(){
@@ -39,11 +40,23 @@ class Login{
         if($status == 200){
             $response = $this->getUser();
             if(count($response) <= 0){
-                $response = array(
-                    "success" => 0,
-                    "message" => "Invalid User Credentials"
-                );
+                $response = $this->getAdmin();
+                if(count($response) <= 0){
+                    $response = array(
+                        "success" => 0,
+                        "message" => "Invalid User Credentials"
+                    );
+
+                    return $response;
+                }
             }
+
+            if(count($response) > 0){
+                foreach($response as $row){
+                    $this->bms_ident = $row['bms_ident'];
+                }
+                $this->insertlogs();
+            }            
         }else {
             $response = array(
                 "success" => 0,
@@ -56,16 +69,16 @@ class Login{
     }
 
 
-    private function getUser(): array
+    private function getAdmin(): array
     {
 
         $response = [];
         try { 
 
-            $userSql = "SELECT bms_ident, full_name, nt, user_email, user_role
+            $sql = "SELECT bms_ident, full_name, nt, user_email, user_role
                             FROM users WHERE nt=:nt";
 
-            $stmt = $this->db->prepare($userSql);
+            $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':nt', $this->userNT, PDO::PARAM_STR);
             $stmt->execute();
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -75,7 +88,75 @@ class Login{
             } 
 
         } catch (PDOException $e) {
-            $data = $e->getMessage();
+            $response = $e->getMessage();
+        }
+
+        return $response;
+    }
+
+    private function getUser(): array
+    {
+
+        $response = [];
+        try { 
+
+            $sql = "SELECT employee_ident as bms_ident, 
+                                employee_full_name as full_name, 
+                                nt, 
+                                email as user_email, 
+                                'User' as user_role
+                            FROM onboard360.dbo.ccms_employee_lists WHERE nt=:nt";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':nt', $this->userNT, PDO::PARAM_STR);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($stmt->rowCount() > 0) {
+                $response = $data;
+            } 
+
+        } catch (PDOException $e) {
+            $response = $e->getMessage();
+        }
+
+        return $response;
+    }
+
+
+    public function insertlogs(){
+
+        $response = [];
+
+        try {
+            $date_now = date("Y-m-d H:i:s", time());
+
+            $sql = "INSERT INTO user_logs
+                    (
+                        user_action
+                        ,user_ident
+                        ,inserted_date_time_ph
+
+                    )
+                    VALUES 
+                    (
+                        'Login'
+                        ,:user_ident
+                        ,:date_now
+                    )";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':user_ident', $this->bms_ident, PDO::PARAM_STR); 
+            $stmt->bindParam(':date_now', $date_now, PDO::PARAM_STR); 
+            $stmt->execute();
+
+            $response['success'] = 1;
+            $response['sql'] = $sql;     
+
+        } catch (\Throwable $th) {
+            $response['success'] = 0;
+            $response['error'] = $th->getMessage(); 
+            $response['sql'] = $sql; 
         }
 
         return $response;
