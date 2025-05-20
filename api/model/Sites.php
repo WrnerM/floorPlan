@@ -17,9 +17,10 @@ class Site
                     ,F.[Name] as floor_number
                     ,F.[comment]
                     ,F.[Id] as floor_id
-                  ,row_number() over(partition by name, short_name order by datevalid desc) as rowNum
+                  ,row_number() over(partition by name, short_name order by f.id desc) as rowNum
                 FROM [Floorplan].[dbo].[Sites] AS S 
                 LEFT JOIN [Floorplan].[dbo].[Floors] AS F ON S.short_name = F.SiteId
+                where scenario is null
                 ) as x where rowNum = 1 order by short_name, floor_number";
       $stmt = $this->db->prepare($sql);
       $stmt->execute();
