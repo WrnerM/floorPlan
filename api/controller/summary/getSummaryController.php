@@ -1,5 +1,14 @@
 <?php
 
+// Allow requests from any origin (for development only)
+header("Access-Control-Allow-Origin: *");
+
+// Optional: Allow specific headers and methods
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+
+
 session_start();
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
@@ -19,29 +28,28 @@ $summary->dateValid = isset($_GET['dateValid']) ? $_GET['dateValid'] : null;
 $data = $summary->getSummary();
 $output = [];
 
-if(isset($data['error']) == false){
-    if(count($data) > 0){
-        $output = array(
-            'total' => [],
-            'details' => []
-        );
-        foreach ($data as $row) {
-            foreach ($row as $key => $value) {
-                if ($key === 'siteid') continue;
-                if (!isset($output['total'][$key])) {
-                    $output['total'][$key] = 0;
-                }
-                $output['total'][$key] += (int) $value;
-            }
-        
-            $output['details'][] = $row;
+if (isset($data['error']) == false) {
+  if (count($data) > 0) {
+    $output = array(
+      'total' => [],
+      'details' => []
+    );
+    foreach ($data as $row) {
+      foreach ($row as $key => $value) {
+        if ($key === 'siteid') continue;
+        if (!isset($output['total'][$key])) {
+          $output['total'][$key] = 0;
         }
-    }
+        $output['total'][$key] += (int) $value;
+      }
 
-    $response = $output;
-    
-}else{
-    $response = $data;
+      $output['details'][] = $row;
+    }
+  }
+
+  $response = $output;
+} else {
+  $response = $data;
 }
 
 echo json_encode($response, JSON_PRETTY_PRINT);
