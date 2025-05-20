@@ -12,12 +12,13 @@ class LoginClass{
         $response = [];
 
         if($this->userNT == "admin" && $this->password == "admin"){
-            return array( [
+            return array(
+                "success" => 1,
                 "bms_ident" => "1",
                 "full_name" => "Admin",
                 "nt" => "1",
                 "user_email" => "admin@teleperformanceusa.com",
-                "user_role" => "Admin" ]
+                "user_role" => "Admin"
             );
         }
        
@@ -84,11 +85,15 @@ class LoginClass{
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($stmt->rowCount() > 0) {
-                $response = $data;
+                $response = $data[0];
+                $response['success'] = 1;
             } 
 
         } catch (PDOException $e) {
-            $response = $e->getMessage();
+            $response = array(
+                "success" => 0,
+                "message" => $e->getMessage()
+            );
         }
 
         return $response;
@@ -113,11 +118,15 @@ class LoginClass{
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($stmt->rowCount() > 0) {
-                $response = $data;
+                $response = $data[0];
+                $response['success'] = 1;
             } 
 
         } catch (PDOException $e) {
-            $response = $e->getMessage();
+            $response = array(
+                "success" => 0,
+                "message" => $e->getMessage()
+            );
         }
 
         return $response;
