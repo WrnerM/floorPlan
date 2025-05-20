@@ -53,9 +53,7 @@ class LoginClass{
             }
 
             if(count($response) > 0){
-                foreach($response as $row){
-                    $this->bms_ident = $row['bms_ident'];
-                }
+                $this->bms_ident = $response['bms_ident'];
                 $this->insertlogs();
             }            
         }else {
