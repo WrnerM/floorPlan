@@ -1,5 +1,14 @@
 <?php
 
+// Allow requests from any origin (for development only)
+header("Access-Control-Allow-Origin: *");
+
+// Optional: Allow specific headers and methods
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+
+
 session_start();
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
@@ -14,55 +23,55 @@ require('../../model/SummaryFloor.php');
 $summaryFloor = new SummaryFloor();
 $summaryFloor->db = $pdoConn;
 
-if(isset($_GET['site'])){
-    $summaryFloor->site = $_GET['site'];
-    $summaryFloor->dateValid = isset($_GET['dateValid']) ? $_GET['dateValid'] : null;
-    $data = $summaryFloor->getSummaryFloor();
+if (isset($_GET['site'])) {
+  $summaryFloor->site = $_GET['site'];
+  $summaryFloor->dateValid = isset($_GET['dateValid']) ? $_GET['dateValid'] : null;
+  $data = $summaryFloor->getSummaryFloor();
 
-    if(isset($data['error']) == false){
-        if(count($data) > 0){
-            $output = array(
-                'overall_total' => [],
-                'floors' => []
-            );
+  if (isset($data['error']) == false) {
+    if (count($data) > 0) {
+      $output = array(
+        'overall_total' => [],
+        'floors' => []
+      );
 
-            foreach ($data as $row) {
-                $name = $row['name'];
-      
-                if (!isset($output['floors'][$name])) {
-                  $output['floors'][$name] = [
-                    'name' => $name,
-                    'total' => [],
-                    'details' => []
-                  ];
-                }
+      foreach ($data as $row) {
+        $name = $row['name'];
 
-                foreach ($row as $key => $value) {
-                  if ($key === 'name' || $key === 'project') continue;
-
-                  if (!isset($output['floors'][$name]['total'][$key])) {
-                    $output['floors'][$name]['total'][$key] = 0;
-                  }
-      
-                  $output['floors'][$name]['total'][$key] += (int) $value;
-
-                  if (!isset($output['overall_total'][$key])) {
-                    $output['overall_total'][$key] = 0;
-                  }
-      
-                  $output['overall_total'][$key] += (int) $value;
-                }
-                
-                $output['floors'][$name]['details'][] = $row;
-            }
+        if (!isset($output['floors'][$name])) {
+          $output['floors'][$name] = [
+            'name' => $name,
+            'total' => [],
+            'details' => []
+          ];
         }
+
+        foreach ($row as $key => $value) {
+          if ($key === 'name' || $key === 'project') continue;
+
+          if (!isset($output['floors'][$name]['total'][$key])) {
+            $output['floors'][$name]['total'][$key] = 0;
+          }
+
+          $output['floors'][$name]['total'][$key] += (int) $value;
+
+          if (!isset($output['overall_total'][$key])) {
+            $output['overall_total'][$key] = 0;
+          }
+
+          $output['overall_total'][$key] += (int) $value;
+        }
+
+        $output['floors'][$name]['details'][] = $row;
+      }
     }
-    $response = $output;
-}else{
-    $response = array(
-        "data" => [],
-        "message" => ["No sites entered"]
-    );
+  }
+  $response = $output;
+} else {
+  $response = array(
+    "data" => [],
+    "message" => ["No sites entered"]
+  );
 }
 
 echo json_encode($response, JSON_PRETTY_PRINT);
