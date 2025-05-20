@@ -17,7 +17,7 @@ class SummaryAccount
         $table = "Positions";
       }
 
-      $sql1 = "SELECT Project as Account, count(*) as seat_count 
+      $sql1 = "SELECT Project as account, count(*) as seat_count 
             FROM $table as a
             INNER JOIN floors as b ON b.Id = a.FloorId
             WHERE siteId = :site1 and Project is not null and scenario is null";
@@ -30,7 +30,7 @@ class SummaryAccount
 
       // Second SELECT block (for total)
       $sql2 = "SELECT 
-                'total' AS Account,
+                'total' AS account,
                 COUNT(*) AS seat_count
             FROM $table AS a
             INNER JOIN floors AS b ON b.Id = a.FloorId
