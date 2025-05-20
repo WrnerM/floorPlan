@@ -1,6 +1,6 @@
 <?php
 
-class Login{
+class LoginClass{
     public $db = null;
     public $userNT = null;
     public $password = null;
@@ -12,12 +12,13 @@ class Login{
         $response = [];
 
         if($this->userNT == "admin" && $this->password == "admin"){
-            return array( [
+            return array(
+                "success" => 1,
                 "bms_ident" => "1",
                 "full_name" => "Admin",
                 "nt" => "1",
                 "user_email" => "admin@teleperformanceusa.com",
-                "user_role" => "Admin" ]
+                "user_role" => "Admin"
             );
         }
        
@@ -52,9 +53,7 @@ class Login{
             }
 
             if(count($response) > 0){
-                foreach($response as $row){
-                    $this->bms_ident = $row['bms_ident'];
-                }
+                $this->bms_ident = $response['bms_ident'];
                 $this->insertlogs();
             }            
         }else {
@@ -84,11 +83,15 @@ class Login{
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($stmt->rowCount() > 0) {
-                $response = $data;
+                $response = $data[0];
+                $response['success'] = 1;
             } 
 
         } catch (PDOException $e) {
-            $response = $e->getMessage();
+            $response = array(
+                "success" => 0,
+                "message" => $e->getMessage()
+            );
         }
 
         return $response;
@@ -113,11 +116,15 @@ class Login{
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($stmt->rowCount() > 0) {
-                $response = $data;
+                $response = $data[0];
+                $response['success'] = 1;
             } 
 
         } catch (PDOException $e) {
-            $response = $e->getMessage();
+            $response = array(
+                "success" => 0,
+                "message" => $e->getMessage()
+            );
         }
 
         return $response;

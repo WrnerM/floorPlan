@@ -54,8 +54,8 @@ class Floor
     try {
       $this->db->beginTransaction();
 
-      $insertFloorSql = "INSERT INTO Floors (SiteId, DateValid, Name, Comment, Scenario) 
-                       VALUES (:siteId, :dateValid, :name, :comment, :scenario)";
+      $insertFloorSql = "INSERT INTO Floors (SiteId, DateValid, Name, Comment, Scenario, updated_by) 
+                       VALUES (:siteId, :dateValid, :name, :comment, :scenario, :updated_by)";
       $insertFloorStmt = $this->db->prepare($insertFloorSql);
 
       $insertPositionSql = "INSERT INTO Positions_Active (FloorId, Row, Col, Tool, Color, Tag, Label, AssignId, Project, Shift) 
@@ -71,7 +71,8 @@ class Floor
           ':dateValid' => $floor['dateValid'],
           ':name' => $floor['name'],
           ':comment' => $floor['comment'],
-          ':scenario' => $floor['scenario']
+          ':scenario' => $floor['scenario'],
+          ':updated_by' => $floor['updated_by']
         ]);
 
         $floorId = $this->db->lastInsertId();
@@ -99,7 +100,7 @@ class Floor
                             id AS floorIdent, 
                             siteid, 
                             name, 
-                            ROW_NUMBER() OVER(PARTITION BY name, siteid ORDER BY datevalid DESC) AS rowNum 
+                            ROW_NUMBER() OVER(PARTITION BY name, siteid ORDER BY id DESC) AS rowNum 
                         FROM floors 
                         WHERE siteid = :siteName AND name = :floorname AND scenario IS NULL
                     ) AS z 
@@ -133,8 +134,8 @@ class Floor
     try {
       $this->db->beginTransaction();
 
-      $insertFloorSql = "INSERT INTO Floors (SiteId, DateValid, Name, Comment, Scenario) 
-                       VALUES (:siteId, :dateValid, :name, :comment, :scenario)";
+      $insertFloorSql = "INSERT INTO Floors (SiteId, DateValid, Name, Comment, Scenario, updated_by) 
+                       VALUES (:siteId, :dateValid, :name, :comment, :scenario, :updated_by)";
       $insertFloorStmt = $this->db->prepare($insertFloorSql);
 
       $insertPositionSql = "INSERT INTO Positions_Active (FloorId, Row, Col, Tool, Color, Tag, Label, AssignId, Project, Shift) 
@@ -144,13 +145,15 @@ class Floor
       foreach ($floors as $floor) {
         $siteID = $floor['siteId'];
         $name = $floor['name'];
+        $scenario = $floor['scenario'];
 
         $insertFloorStmt->execute([
           ':siteId' => $floor['siteId'],
           ':dateValid' => $floor['dateValid'],
           ':name' => $floor['name'],
           ':comment' => $floor['comment'],
-          ':scenario' => $floor['scenario']
+          ':scenario' => $floor['scenario'],
+          ':updated_by' => $floor['updated_by']
         ]);
 
         $floorId = $this->db->lastInsertId();
@@ -178,9 +181,9 @@ class Floor
                             id AS floorIdent, 
                             siteid, 
                             name, 
-                            ROW_NUMBER() OVER(PARTITION BY name, siteid ORDER BY datevalid DESC) AS rowNum 
+                            ROW_NUMBER() OVER(PARTITION BY name, siteid ORDER BY id DESC) AS rowNum 
                         FROM floors 
-                        WHERE siteid = :siteName AND name = :floorname AND scenario IS NOT NULL
+                        WHERE siteid = :siteName AND name = :floorname AND scenario = :scenario
                     ) AS z 
                     WHERE rowNum > 1
                 )
@@ -190,6 +193,7 @@ class Floor
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':siteName', $siteID, PDO::PARAM_STR);
         $stmt->bindParam(':floorname', $name, PDO::PARAM_STR);
+        $stmt->bindParam(':scenario', $scenario, PDO::PARAM_STR);
         $stmt->execute();
       }
 

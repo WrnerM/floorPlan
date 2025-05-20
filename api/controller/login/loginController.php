@@ -17,7 +17,7 @@ ini_set('memory_limit', -1);
 require('../../../config/db-connect.php');
 require('../../model/Login.php');
 
-$login = new Login;
+$login = new LoginClass;
 $login->db = $pdoConn;
 
 $login->userNT = $_GET['userNT'];

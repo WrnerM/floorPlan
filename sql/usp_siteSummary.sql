@@ -1,12 +1,13 @@
 USE [FloorPlan]
 GO
 
-/****** Object:  StoredProcedure [dbo].[usp_site_summary]    Script Date: 13/05/2025 11:20:11 pm ******/
+/****** Object:  StoredProcedure [dbo].[usp_site_summary]    Script Date: 21/05/2025 12:19:14 am ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -16,7 +17,7 @@ GO
 
 --exec [usp_site_summary] @dateValid = '2021-06-11 00:00:00.00000'
 
-CREATE OR ALTER                           procedure [dbo].[usp_site_summary](
+CREATE OR ALTER                             procedure [dbo].[usp_site_summary](
 	@dateValid as nvarchar(50) = null
 )
 
@@ -52,7 +53,7 @@ as begin
 				from (
 					select floorid, siteid, tag from positions a
 						inner join floors b on a.floorid = b.id
-					where dateValid = '''+@dateValid+'''
+					where scenario is null AND dateValid = '''+@dateValid+'''
 				) as src
 				pivot (
 					COUNT(floorid) for tag in ('+@pvt_columns+')
@@ -65,6 +66,7 @@ as begin
 				from (
 					select floorid, siteid, tag from positions_active a
 						inner join floors b on a.floorid = b.id
+						where scenario is null
 				) as src
 				pivot (
 					COUNT(floorid) for tag in ('+@pvt_columns+')
@@ -78,3 +80,5 @@ as begin
  
 
 GO
+
+
