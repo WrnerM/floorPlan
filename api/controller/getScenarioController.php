@@ -19,47 +19,49 @@ $scenario->db = $pdoConn;
 $scenario->site = $_GET['site'];
 $response = $scenario->getScenario();
 
-$output = [];
-$currentFloorId = null;
-$currentFloor = null;
+// $output = [];
+// $currentFloorId = null;
+// $currentFloor = null;
 
 
-foreach ($response as $row) {
-  if ($row['FloorId'] !== $currentFloorId) {
-    if ($currentFloor !== null) {
-      $output[] = $currentFloor;
-    }
+// foreach ($response as $row) {
+//   if ($row['FloorId'] !== $currentFloorId) {
+//     if ($currentFloor !== null) {
+//       $output[] = $currentFloor;
+//     }
 
-    $currentFloorId = $row['FloorId'];
-    $currentFloor = [
-      "id" => $row['FloorId'],
-      "siteId" => $row['SiteId'],
-      "dateValid" => $row['DateValid'],
-      "name" => $row['Name'],
-      "comment" => $row['Comment'],
-      "scenario" => $row['Scenario'],
-      "position" => []
-    ];
-  }
+//     $currentFloorId = $row['FloorId'];
+//     $currentFloor = [
+//       "id" => $row['FloorId'],
+//       "siteId" => $row['SiteId'],
+//       "dateValid" => $row['DateValid'],
+//       "name" => $row['Name'],
+//       "comment" => $row['Comment'],
+//       "scenario" => $row['Scenario'],
+//     ];
+//   };
+//     "position" => []
+//   ];
+// }
 
-  $currentFloor['position'][] = [
-    "floorId" => $row['FloorId'],
-    "row" => $row['Row'],
-    "col" => $row['Col'],
-    "tool" => $row['Tool'],
-    "color" => $row['Color'],
-    "tag" => $row['Tag'],
-    "label" => $row['Label'],
-    "assignId" => $row['AssignId'],
-    "project" => $row['Project'],
-    "shift" => $row['Shift']
-  ];
-}
+// $currentFloor['position'][] = [
+//   "floorId" => $row['FloorId'],
+//   "row" => $row['Row'],
+//   "col" => $row['Col'],
+//   "tool" => $row['Tool'],
+//   "color" => $row['Color'],
+//   "tag" => $row['Tag'],
+//   "label" => $row['Label'],
+//   "assignId" => $row['AssignId'],
+//   "project" => $row['Project'],
+//   "shift" => $row['Shift']
+// ];
+//}
 
 // Add the last floor
-if ($currentFloor !== null) {
-  $output[] = $currentFloor;
-}
+// if ($currentFloor !== null) {
+//   $output[] = $currentFloor;
+// }
 
 // Output JSON
-echo json_encode($output, JSON_PRETTY_PRINT);
+echo json_encode($response, JSON_PRETTY_PRINT);
