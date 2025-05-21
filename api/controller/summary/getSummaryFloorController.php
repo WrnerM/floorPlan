@@ -23,7 +23,7 @@ if (isset($_GET['site'])) {
   $summaryFloor->site = $_GET['site'];
   $summaryFloor->dateValid = isset($_GET['dateValid']) ? $_GET['dateValid'] : null;
   $data = $summaryFloor->getSummaryFloor();
-
+  $output = [];
   if (isset($data['error']) == false) {
     if (count($data) > 0) {
       $output = array(

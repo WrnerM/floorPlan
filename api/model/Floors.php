@@ -100,7 +100,7 @@ class Floor
                             id AS floorIdent, 
                             siteid, 
                             name, 
-                            ROW_NUMBER() OVER(PARTITION BY name, siteid ORDER BY id DESC) AS rowNum 
+                            ROW_NUMBER() OVER(PARTITION BY name, siteid ORDER BY datevalid DESC) AS rowNum 
                         FROM floors 
                         WHERE siteid = :siteName AND name = :floorname AND scenario IS NULL
                     ) AS z 
@@ -181,7 +181,7 @@ class Floor
                             id AS floorIdent, 
                             siteid, 
                             name, 
-                            ROW_NUMBER() OVER(PARTITION BY name, siteid ORDER BY id DESC) AS rowNum 
+                            ROW_NUMBER() OVER(PARTITION BY name, siteid ORDER BY datevalid DESC) AS rowNum 
                         FROM floors 
                         WHERE siteid = :siteName AND name = :floorname AND scenario = :scenario
                     ) AS z 
