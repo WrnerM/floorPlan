@@ -39,20 +39,20 @@ class LoginClass{
         curl_close($c);
         
         if($status == 200){
-            $response = $this->getUser();
-            if(count($response) <= 0){
+            // $response = $this->getUser();
+            // if(count($response) <= 0){
                 $response = $this->getAdmin();
                 if(count($response) <= 0){
                     $response = array(
                         "success" => 0,
-                        "message" => "Invalid User Credentials"
+                        "message" => "Please contact system admin to register your account"
                     );
 
                     return $response;
                 }
-            }
+            // }
 
-            if(count($response) > 0){
+            if(count($response) > 0 && $response["success"] == 1){
                 $this->bms_ident = $response['bms_ident'];
                 $this->insertlogs();
             }            
