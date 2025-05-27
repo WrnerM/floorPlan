@@ -17,7 +17,8 @@ class SummaryAccount
         $table = "Positions";
       }
 
-      $sql1 = "SELECT Project as account, count(*) as seat_count 
+      $sql1 = "SELECT Project as account, 
+            sum(case when tag = 'Shared' or tag = 'SharedSeatsNoPC' then 2 else 1 end) as seat_count 
             FROM $table as a
             INNER JOIN floors as b ON b.Id = a.FloorId
             WHERE siteId = :site1 
@@ -34,7 +35,7 @@ class SummaryAccount
       // Second SELECT block (for total)
       $sql2 = "SELECT 
                 'total' AS account,
-                COUNT(*) AS seat_count
+                SUM(case when tag = 'Shared' or tag = 'SharedSeatsNoPC' then 2 else 1 end) AS seat_count
             FROM $table AS a
             INNER JOIN floors AS b ON b.Id = a.FloorId
             WHERE siteId = :site2
