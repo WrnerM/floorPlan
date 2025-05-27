@@ -45,6 +45,10 @@ if (isset($_GET['site'])) {
         foreach ($row as $key => $value) {
           if ($key === 'name' || $key === 'project') continue;
 
+          if($key == "Shared" || $key == "SharedSeatsNoPC"){
+            $value *= 2;
+          }
+
           if (!isset($output['floors'][$name]['total'][$key])) {
             $output['floors'][$name]['total'][$key] = 0;
           }
@@ -58,6 +62,8 @@ if (isset($_GET['site'])) {
           $output['overall_total'][$key] += (int) $value;
         }
 
+        $row['Shared'] *= 2;
+        $row['SharedSeatsNoPC'] *= 2;
         $output['floors'][$name]['details'][] = $row;
       }
     }

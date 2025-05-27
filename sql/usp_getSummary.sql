@@ -65,6 +65,7 @@ as begin
 						inner join floors b on a.floorid = b.id
 					where project is not null AND scenario is null 
 						AND siteid = ''' + @site + ''' 
+						AND dateValid <= getutcdate() at time zone ''UTC'' at time zone ''Singapore Standard Time''
 				) as src
 				pivot (
 					COUNT(floorid) for tag in ('+@pvt_columns+')

@@ -20,7 +20,10 @@ class SummaryAccount
       $sql1 = "SELECT Project as account, count(*) as seat_count 
             FROM $table as a
             INNER JOIN floors as b ON b.Id = a.FloorId
-            WHERE siteId = :site1 and Project is not null and scenario is null";
+            WHERE siteId = :site1 
+              and Project is not null 
+              and scenario is null
+              AND dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'";
 
       if ($this->dateValid !== null) {
         $sql1 .= " AND DateValid = :dateValid1";
@@ -36,7 +39,8 @@ class SummaryAccount
             INNER JOIN floors AS b ON b.Id = a.FloorId
             WHERE siteId = :site2
               AND Project IS NOT NULL
-              AND Scenario IS NULL";
+              AND Scenario IS NULL
+              AND dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'";
 
       // Add optional condition to second SELECT
       if ($this->dateValid !== null) {

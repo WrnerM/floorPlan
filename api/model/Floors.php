@@ -65,6 +65,7 @@ class Floor
       foreach ($floors as $floor) {
         $siteID = $floor['siteId'];
         $name = $floor['name'];
+        $dateValid = $floor['dateValid'];
 
         $insertFloorStmt->execute([
           ':siteId' => $floor['siteId'],
@@ -92,8 +93,12 @@ class Floor
           ]);
         }
 
-        //DELETE Floor ID not included on the latest dateValid.
-        $sql = "WITH floorCTE AS (
+        $date = new DateTime($dateValid); 
+        $now = new DateTime(); 
+
+        if ($date <= $now) {
+          //DELETE Floor ID not included on the latest dateValid.
+          $sql = "WITH floorCTE AS (
                     SELECT * 
                     FROM (
                         SELECT 
@@ -103,16 +108,18 @@ class Floor
                             ROW_NUMBER() OVER(PARTITION BY name, siteid ORDER BY datevalid DESC) AS rowNum 
                         FROM floors 
                         WHERE siteid = :siteName AND name = :floorname AND scenario IS NULL
+                        AND dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'
                     ) AS z 
                     WHERE rowNum > 1
                 )
                 DELETE a
                 FROM positions_active a
                 INNER JOIN floorCTE b ON a.FloorId = b.floorIdent;";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':siteName', $siteID, PDO::PARAM_STR);
-        $stmt->bindParam(':floorname', $name, PDO::PARAM_STR);
-        $stmt->execute();
+          $stmt = $this->db->prepare($sql);
+          $stmt->bindParam(':siteName', $siteID, PDO::PARAM_STR);
+          $stmt->bindParam(':floorname', $name, PDO::PARAM_STR);
+          $stmt->execute();
+        }
       }
 
 

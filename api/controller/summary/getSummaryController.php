@@ -37,9 +37,13 @@ if (isset($data['error']) == false) {
         if (!isset($output['total'][$key])) {
           $output['total'][$key] = 0;
         }
+        if($key == "Shared" || $key == "SharedSeatsNoPC"){
+          $value *= 2;
+        }
         $output['total'][$key] += (int) $value;
       }
-
+      $row['Shared'] *= 2;
+      $row['SharedSeatsNoPC'] *= 2;
       $output['details'][] = $row;
     }
   }
