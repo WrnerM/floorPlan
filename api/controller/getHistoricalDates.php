@@ -18,8 +18,8 @@ require('../model/HistoricalDates.php');
 
 $historicalDates = new HistoricalDates();
 $historicalDates->db = $pdoConn;
-$historicalDates->name = $_GET['name'];
-$historicalDates->siteId = $_GET['siteId'];
+$historicalDates->name = $_GET['floor'];
+$historicalDates->siteId = $_GET['site'];
 
 $response = $historicalDates->getHistoricalDates();
 
