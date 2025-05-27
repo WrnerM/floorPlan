@@ -1,0 +1,28 @@
+ curl -X POST http://localhost/floorPlan/api/controller/editFloorsHistorical.php \
+  -H "Content-Type: application/json" \
+  -d '[
+    {
+      "floorId": 138,
+      "row": 2,
+      "col": 3,
+      "tool": "Hammer",
+      "color": "Red",
+      "tag": "A1",
+      "label": "Workstation",
+      "assignId": "U123",
+      "project": "ProjectX",
+      "shift": "Morning werner test"
+    },
+    {
+      "floorId": 138,
+      "row": 4,
+      "col": 1,
+      "tool": "Drill",
+      "color": "Blue",
+      "tag": "B2",
+      "label": "Assembly",
+      "assignId": "U456",
+      "project": "ProjectY",
+      "shift": "Night"
+    }
+  ]'
