@@ -29,6 +29,7 @@ if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
 
 $floorModel = new FloorsHistorical();
 $floorModel->db = $pdoConn;
+$floorModel->floorId = $_GET['floorId'] ?? null;
 
 $response = $floorModel->editFloorsHistorical($data);
 
