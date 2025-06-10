@@ -1,11 +1,11 @@
 curl -X POST http://localhost/floorPlan/api/controller/user/editUserController.php \
   -H "Content-Type: application/json" \
   -d '{
-    "bms_ident": "100001",
-    "full_name": "Werner Montala updated user test",
-    "nt": "NT456",
-    "user_email": "wernertesting@example.com",
-    "user_role": "User"
+    "bms_ident": "1000011",
+    "full_name": "swerner",
+    "nt": "NT456asd",
+    "user_email": "" ,
+    "user_role": "Admin"
   }'
 
   

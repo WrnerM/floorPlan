@@ -1,4 +1,3 @@
-
 <?php
 
 // Allow requests from any origin (for development only)
@@ -20,7 +19,7 @@ require('../model/Clients.php');
 
 $client = new Client();
 $client->db = $pdoConn;
-$client->location_ident = $_GET['location_ident'];
+$client->site = $_GET['site'];
 
 $response = $client->getClient();
 

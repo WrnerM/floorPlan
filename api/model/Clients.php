@@ -1,9 +1,11 @@
+06:50
+You sent
 <?php
 
 class Client
 {
   public $db = null;
-  public $location_ident = null;
+  public $site = null;
 
 
   public function getClient()
@@ -12,12 +14,17 @@ class Client
 
     try {
 
-      $sql = "SELECT distinct account_full_name
-                from TPSWEB.[dbo].SC_CONFIG
-              where status <>'Dark' and ccms_location_ident = :location_ident
-              order by account_full_name";
+      $sql = "SELECT DISTINCT 
+                    NAME_CAPACITYDASHBOARD as account_full_name
+                FROM 
+                    MCKWFMDB01.TPSREPO.DBO.VW_SC_DETAILS_LATEST_PVT
+                WHERE CLIENT_FULL_NAME IN 
+                    (SELECT CLIENT_FULL_NAME FROM MCKWFMDB01.TPSREPO.DBO.VW_SC_DETAILS_LATEST_PVT 
+                WHERE  LOCATION_FULL_NAME LIKE :site AND STATUS = 'ACTIVE' AND NAME_CAPACITYDASHBOARD != '--') 
+                    AND [STATUS] = 'ACTIVE' AND NAME_CAPACITYDASHBOARD != '--'";
       $stmt = $this->db->prepare($sql);
-      $stmt->bindParam(':location_ident', $this->location_ident, PDO::PARAM_STR);
+      $locationParam = '%' . $this->site . '%';
+      $stmt->bindParam(':site', $locationParam, PDO::PARAM_STR);
       $stmt->execute();
       $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

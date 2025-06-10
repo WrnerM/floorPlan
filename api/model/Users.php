@@ -79,6 +79,17 @@ class Users
 
   public function editUser($params)
   {
+    // Validate required fields
+    $required = ['bms_ident', 'full_name', 'nt', 'user_email', 'user_role'];
+    foreach ($required as $field) {
+      if (empty($params[$field])) {
+        return [
+          'success' => 0,
+          'error' => "Missing required field: $field"
+        ];
+      }
+    }
+
     try {
       $allowedRoles = ['User', 'Admin'];
       if (!in_array($params['user_role'], $allowedRoles)) {
@@ -101,11 +112,11 @@ class Users
       }
 
       $updateSql = "UPDATE Users SET 
-                    full_name = :full_name,
-                    nt = :nt,
-                    user_email = :user_email,
-                    user_role = :user_role
-                  WHERE bms_ident = :bms_ident";
+                        full_name = :full_name,
+                        nt = :nt,
+                        user_email = :user_email,
+                        user_role = :user_role
+                      WHERE bms_ident = :bms_ident";
 
       $stmt = $this->db->prepare($updateSql);
 
