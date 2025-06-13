@@ -1,5 +1,3 @@
-06:50
-You sent
 <?php
 
 class Client
@@ -15,7 +13,7 @@ class Client
     try {
 
       $sql = "SELECT DISTINCT 
-                    NAME_CAPACITYDASHBOARD as account_full_name
+                    NAME_CAPACITYDASHBOARD,CLIENT_FULL_NAME
                 FROM 
                     MCKWFMDB01.TPSREPO.DBO.VW_SC_DETAILS_LATEST_PVT
                 WHERE CLIENT_FULL_NAME IN 
