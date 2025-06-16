@@ -12,7 +12,7 @@ header('Content-Type: application/json');
 ini_set('memory_limit', -1);
 
 require('../../config/db-connect.php');
-require('../model/Decomission.php');
+require('../model/Decommission.php');
 
 if (!isset($_GET['floor']) || !isset($_GET['site'])) {
   echo json_encode([
@@ -22,15 +22,13 @@ if (!isset($_GET['floor']) || !isset($_GET['site'])) {
   exit;
 }
 
-// Assign parameters
 $floor = $_GET['floor'];
 $site = $_GET['site'];
 
-$decomission = new Decomission();
-$decomission->db = $pdoConn;
-$decomission->floor = $floor;
-$decomission->site = $site;
+$decommission = new Decommission();
+$decommission->db = $pdoConn;
+$decommission->floor = $floor;
+$decommission->site = $site;
 
-// Get data and return
-$response = $decomission->getDecomission();
+$response = $decommission->getDecommission();
 echo json_encode($response, JSON_PRETTY_PRINT);

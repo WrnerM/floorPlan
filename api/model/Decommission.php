@@ -1,13 +1,13 @@
 <?php
 
-class Decomission
+class Decommission
 {
   public $db = null;
   public $floor = null;
   public $site = null;
 
 
-  public function getDecomission()
+  public function getDecommission()
   {
     $response = [];
 
@@ -33,4 +33,7 @@ class Decomission
 
     return $response;
   }
+
+
+  //public function addDec
 }
