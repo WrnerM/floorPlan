@@ -35,5 +35,19 @@ class Decommission
   }
 
 
-  //public function addDec
+  // public function addDecommission($params)
+  // {
+  //   $response = [];
+
+  //   try {
+  //     $this->db->beginTransaction();
+
+  //     $sql = "INSERT INTO Decommission (FLOOR, SITE, PROJECT, DECOMISSIONED_DATE)
+  //             values (:floor, :site, :project, :decomission_date)";
+  //   } catch (\Throwable $th) {
+  //     $response['success'] = 0;
+  //     $response['error'] = $th->getMessage();
+  //     $response['sql'] = $sql;
+  //   }
+  // }
 }

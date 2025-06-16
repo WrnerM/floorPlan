@@ -11,8 +11,8 @@ header("Expires: 0");
 header('Content-Type: application/json');
 ini_set('memory_limit', -1);
 
-require('../../config/db-connect.php');
-require('../model/Decommission.php');
+require('../../../config/db-connect.php');
+require('../../model/Decommission.php');
 
 if (!isset($_GET['floor']) || !isset($_GET['site'])) {
   echo json_encode([
