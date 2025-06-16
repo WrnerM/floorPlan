@@ -1,0 +1,22 @@
+curl -X POST http://localhost/floorPlan/api/controller/decommission/addDecommission.php \
+  -H "Content-Type: application/json" \
+  -d '[
+    {
+      "floor": "3F",
+      "site": "Davao",
+      "project": "Project Alpha",
+      "decommissioned_date": "2025-06-10"
+    },
+    {
+      "floor": "4F",
+      "site": "Davao",
+      "project": "Project Beta",
+      "decommissioned_date": "2025-06-11"
+    },
+    {
+      "floor": "5F",
+      "site": "Cebu",
+      "project": "Project Gamma",
+      "decommissioned_date": "2025-06-12"
+    }
+  ]'
