@@ -1,3 +1,5 @@
+// add decommission
+
 curl -X POST http://localhost/floorPlan/api/controller/decommission/addDecommission.php \
   -H "Content-Type: application/json" \
   -d '[
@@ -20,3 +22,10 @@ curl -X POST http://localhost/floorPlan/api/controller/decommission/addDecommiss
       "decommissioned_date": "2025-06-12"
     }
   ]'
+
+
+delete decommission
+
+curl -X POST http://localhost/floorPlan/api/controller/decommission/deleteDecommission.php \
+  -H "Content-Type: application/json" \
+  -d '{"id": 669}'

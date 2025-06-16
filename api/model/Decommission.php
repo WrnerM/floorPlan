@@ -67,4 +67,33 @@ class Decommission
 
     return $response;
   }
+
+  public function deleteDecommission($id)
+  {
+    $response = [];
+
+    try {
+      $sql = "DELETE From Decommission where id = :id";
+      $stmt = $this->db->prepare($sql);
+      $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+      $stmt->execute();
+
+      // $response["success"] = 1;
+      // $response["message"] = "Deleted successfully";
+
+
+      if ($stmt->rowCount() > 0) {
+        $response["success"] = 1;
+        $response["message"] = "Deleted successfully";
+      } else {
+        $response["success"] = 0;
+        $response["message"] = "ID not found";
+      }
+    } catch (\Throwable $th) {
+      $response['success'] = 0;
+      $response['error'] = $th->getMessage();
+    }
+
+    return $response;
+  }
 }
