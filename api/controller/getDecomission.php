@@ -14,13 +14,12 @@ ini_set('memory_limit', -1);
 require('../../config/db-connect.php');
 require('../model/Decomission.php');
 
-// ✅ Validate required parameters
 if (!isset($_GET['floor']) || !isset($_GET['site'])) {
   echo json_encode([
     'success' => 0,
     'message' => 'Missing required parameters'
   ]);
-  exit; // Stop script execution
+  exit;
 }
 
 // Assign parameters
