@@ -12,16 +12,19 @@ class HistoricalDates
     try {
 
       $sql = "SELECT FloorId, dateValid, comment from (
-              select id as FloorId, dateValid, comment, 
-              row_number() over(partition by name, siteid order by dateValid desc) as rowNum
-              from floors
-              where dateValid >= '2024-01-01' and 
-              dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'
+              SELECT *,
+                    ROW_NUMBER() OVER (PARTITION BY dateValid ORDER BY dateValid desc) AS rowPerDate
+              FROM (
 
-              and name = :name and siteId = :siteId
-
-              ) as x where rowNum > 1
-              ";
+                        select id as FloorId, dateValid, comment, 
+                        row_number() over(partition by name, siteid order by dateValid desc) as rowNum
+                        from floors
+                        where dateValid >= '2024-01-01' and 
+                        dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'
+                        and name = :name and siteId = :siteId
+                        ) as x where rowNum > 1
+                  ) AS deduped
+              WHERE rowPerDate = 1";
 
       $stmt = $this->db->prepare($sql);
       $stmt->bindParam(':name', $this->name, PDO::PARAM_STR);
