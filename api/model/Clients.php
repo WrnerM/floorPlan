@@ -13,23 +13,12 @@ class Client
     try {
 
       $sql = "
-          WITH Filtered AS (
-            SELECT CLIENT_FULL_NAME, NAME_CAPACITYDASHBOARD, LOCATION_FULL_NAME
-            FROM TPSREPO.DBO.VW_SC_DETAILS_LATEST_PVT WITH (NOLOCK)
-            WHERE 
-              [STATUS] = 'ACTIVE' AND 
-              NAME_CAPACITYDASHBOARD != '--'
-          )
-
-          SELECT DISTINCT f.NAME_CAPACITYDASHBOARD AS project
-          FROM Filtered f
-          WHERE EXISTS (
-            SELECT 1
-            FROM Filtered f2
-            WHERE 
-              f2.CLIENT_FULL_NAME = f.CLIENT_FULL_NAME AND 
-              f2.LOCATION_FULL_NAME = :site
-          );
+         SELECT DISTINCT NAME_CAPACITYDASHBOARD AS project
+        FROM MCKWFMDB01.TPSREPO.DBO.VW_SC_DETAILS_LATEST_PVT WITH (NOLOCK)
+        WHERE 
+          [STATUS] = 'ACTIVE'
+          AND NAME_CAPACITYDASHBOARD != '--'
+          AND LOCATION_FULL_NAME = :site;
       ";
       $stmt = $this->db->prepare($sql);
       $locationParam = $this->site;
