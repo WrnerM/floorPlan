@@ -11,20 +11,33 @@ class HistoricalDates
 
     try {
 
-      $sql = "SELECT FloorId, dateValid, comment from (
-              SELECT *,
-                    ROW_NUMBER() OVER (PARTITION BY dateValid ORDER BY dateValid desc) AS rowPerDate
+      $sql = "SELECT FloorId, dateValid, comment
               FROM (
-
-                        select id as FloorId, dateValid, comment, 
-                        row_number() over(partition by name, siteid order by dateValid desc) as rowNum
-                        from floors
-                        where dateValid >= '2024-01-01' and 
-                        dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'
-                        and name = :name and siteId = :siteId
-                        ) as x where rowNum > 1
-                  ) AS deduped
-              WHERE rowPerDate = 1";
+                  SELECT *,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY CAST(dateValid AS DATE) 
+                            ORDER BY FloorId DESC
+                        ) AS rowPerDate
+                  FROM (
+                      SELECT 
+                          id AS FloorId,
+                          dateValid,
+                          comment,
+                          ROW_NUMBER() OVER (
+                              PARTITION BY name, siteid 
+                              ORDER BY dateValid DESC
+                          ) AS rowNum
+                      FROM floors
+                      WHERE 
+                          CAST(dateValid AS DATE) >= '2024-01-01'
+                          AND scenario IS NULL
+                          AND CAST(dateValid AS DATE) < CAST(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time' AS DATE)
+                          AND name = :name and siteId = :siteId
+                  ) AS x
+                  WHERE rowNum > 1
+              ) AS deduped
+              WHERE rowPerDate = 1;
+        ";
 
       $stmt = $this->db->prepare($sql);
       $stmt->bindParam(':name', $this->name, PDO::PARAM_STR);
