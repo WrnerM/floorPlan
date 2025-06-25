@@ -36,7 +36,8 @@ class HistoricalDates
                   ) AS x
                   WHERE rowNum > 1
               ) AS deduped
-              WHERE rowPerDate = 1;
+              WHERE rowPerDate = 1
+              ORDER BY dateValid DESC;
         ";
 
       $stmt = $this->db->prepare($sql);
