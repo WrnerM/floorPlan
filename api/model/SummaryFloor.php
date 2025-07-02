@@ -11,7 +11,13 @@ class SummaryFloor
   {
 
     try {
-      $sql = "SELECT name, project, tag, count(a.id) as count from  positions_active a 
+      // $where = "";
+      // if ($this->dateValid !== null) {
+      //   $where .= " AND DateValid = (select max(dateValid) from floors where dateValid = :dateValid)";
+      // }
+
+      $sql = "SELECT name, project, case when tag = 'Non Prod' then 'NonProd' else tag end as tag, 
+                count(a.id) as count from  positions_active a 
                 inner join floors b on a.FloorId = b.id 
                 where scenario is null and project is not null 
               and ltrim(rtrim(project)) <> ''
@@ -23,9 +29,13 @@ class SummaryFloor
                           ,'Support'
                           ,'Non Prod'
                           ,'Unassigned')
+              $where
               group by name, project, tag";
       $stmt = $this->db->prepare($sql);
       $stmt->bindParam(':site', $this->site, PDO::PARAM_STR);
+      // if ($this->dateValid !== null) {
+      //   $stmt->bindParam(':dateValid', $this->dateValid, PDO::PARAM_STR);
+      // }
       $stmt->execute();
       $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

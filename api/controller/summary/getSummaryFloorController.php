@@ -26,7 +26,7 @@ if (isset($_GET['site'])) {
   $output = [];
   if (isset($data['error']) == false) {
     if (count($data) > 0) {
-      $tags = ['Dedicated', 'Shared', 'Blocked', 'Support', 'Non Prod', 'Unassigned'];
+      $tags = ['Dedicated', 'Shared', 'Blocked', 'Support', 'NonProd', 'Unassigned'];
 
       $output = [
           "overall_total" => array_fill_keys(array_merge($tags, ["total_seats"]), 0),

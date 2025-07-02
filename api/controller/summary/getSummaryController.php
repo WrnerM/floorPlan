@@ -24,7 +24,7 @@ $summary->dateValid = isset($_GET['dateValid']) ? $_GET['dateValid'] : null;
 $data = $summary->getSummary();
 $output = [];
 
-$validTags = ['Dedicated', 'Shared', 'Blocked', 'Support', 'Non Prod', 'Unassigned'];
+$validTags = ['Dedicated', 'Shared', 'Blocked', 'Support', 'NonProd', 'Unassigned'];
 
 $totals = [];
 foreach ($validTags as $tag) {
