@@ -21,7 +21,7 @@ class SummaryFloor
                 inner join floors b on a.FloorId = b.id 
                 where scenario is null and project is not null 
               and ltrim(rtrim(project)) <> ''
-              AND dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'
+              AND dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)
               and siteid = :site
               and tag in ('Dedicated'
                           ,'Shared'
@@ -29,7 +29,6 @@ class SummaryFloor
                           ,'Support'
                           ,'Non Prod'
                           ,'Unassigned')
-              $where
               group by name, project, tag";
       $stmt = $this->db->prepare($sql);
       $stmt->bindParam(':site', $this->site, PDO::PARAM_STR);

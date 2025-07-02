@@ -108,7 +108,7 @@ class Floor
                             ROW_NUMBER() OVER(PARTITION BY name, siteid ORDER BY datevalid DESC) AS rowNum 
                         FROM floors 
                         WHERE siteid = :siteName AND name = :floorname AND scenario IS NULL
-                        AND dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'
+                        AND dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)
                     ) AS z 
                     WHERE rowNum > 1
                 )

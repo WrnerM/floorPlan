@@ -24,7 +24,7 @@ class SummaryAccount
             WHERE siteId = :site1 
               and Project is not null and ltrim(rtrim(project)) <> ''
               and scenario is null
-              AND dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'
+              AND dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)
               and tag in (
                             'Dedicated'
                             ,'Shared'
@@ -48,7 +48,7 @@ class SummaryAccount
             WHERE siteId = :site2
               AND Project IS NOT NULL and ltrim(rtrim(project)) <> ''
               AND Scenario IS NULL
-              AND dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'
+              AND dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)
               and tag in (
                             'Dedicated'
                             ,'Shared'
