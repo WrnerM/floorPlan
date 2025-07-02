@@ -10,7 +10,7 @@ class Positions
     try {
 
       $sql = "SELECT id, floorId, row, col, tool, color, tag, label, assignId, project, shift 
-              FROM Positions_active WHERE floorId = :floorId";
+              FROM Positions_active WHERE floorId = :floorId and project is not null";
       $stmt = $this->db->prepare($sql);
       $stmt->bindParam(':floorId', $this->floorId, PDO::PARAM_STR);
       $stmt->execute();

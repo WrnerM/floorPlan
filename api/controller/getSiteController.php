@@ -39,16 +39,20 @@ foreach ($response as $row) {
     ];
   }
 
-  $currentLocation['floors'][] = [
-    "floorID" => $row['floor_id'],
-    "floorNumber" => $row['floor_number'],
-    "comment" => $row['comment']
-  ];
+  // Only add a floor if it exists
+  if (!is_null($row['floor_id'])) {
+    $currentLocation['floors'][] = [
+      "floorID" => $row['floor_id'],
+      "floorNumber" => $row['floor_number'],
+      "comment" => $row['comment']
+    ];
+  }
 }
 
-// Add the last floor
+// Add the last grouped site
 if ($currentLocation !== null) {
   $output[] = $currentLocation;
 }
 
-echo json_encode($output, JSON_PRETTY_PRINT);;
+echo json_encode($output, JSON_PRETTY_PRINT);
+

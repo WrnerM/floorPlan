@@ -52,9 +52,10 @@ class Decommission
         $stmt->bindParam(':site', $param['site'], PDO::PARAM_STR);
         $stmt->bindParam(':project', $param['project'], PDO::PARAM_STR);
         $stmt->bindParam(':decomissioned_date', $param['decomissioned_date'], PDO::PARAM_STR);
+
+        $stmt->execute();
       }
 
-      $stmt->execute();
       $this->db->commit();
       $response['success'] = 1;
       $response['message'] = count($params) . " inserted successfully";

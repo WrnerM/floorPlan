@@ -9,26 +9,18 @@ class Scenario
   {
 
     try {
-      $sql = "SELECT floorId,
+      $sql = "SELECT 
+                Id AS floorId,
                 siteId,
                 dateValid,
                 name,
                 comment,
                 scenario
-              FROM (
-                SELECT 
-                  Id as floorId,
-                  SiteId,
-                  DateValid,
-                  Name,
-                  Comment,
-                  Scenario,
-                  row_number() over(partition by name, siteid order by datevalid desc) as rowNum
-                FROM Floors
-                WHERE SiteId = :site
-                AND Scenario is not null
-              ) as x where rowNum = 1
-              order by name";
+              FROM Floors
+              WHERE SiteId = :site
+                AND Scenario IS NOT NULL
+              ORDER BY Name;
+              ";
 
       $stmt = $this->db->prepare($sql);
       $stmt->bindParam(':site', $this->site, PDO::PARAM_STR);
