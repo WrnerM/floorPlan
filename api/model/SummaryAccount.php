@@ -18,32 +18,45 @@ class SummaryAccount
       }
 
       $sql1 = "SELECT Project as account, 
-            sum(case when tag = 'Shared' or tag = 'SharedSeatsNoPC' then 2 else 1 end) as seat_count 
+            count(a.id) as seat_count 
             FROM $table as a
             INNER JOIN floors as b ON b.Id = a.FloorId
             WHERE siteId = :site1 
-              and Project is not null 
+              and Project is not null and ltrim(rtrim(project)) <> ''
               and scenario is null
-              AND dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'";
+              AND dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'
+              and tag in (
+                            'Dedicated'
+                            ,'Shared'
+                            ,'Blocked'
+                            ,'Support'
+                            ,'Non Prod'
+                            ,'Unassigned'
+                         )";
 
       if ($this->dateValid !== null) {
         $sql1 .= " AND DateValid = :dateValid1";
       }
 
       $sql1 .= " GROUP BY Project";
-
-      // Second SELECT block (for total)
+      
       $sql2 = "SELECT 
                 'total' AS account,
-                SUM(case when tag = 'Shared' or tag = 'SharedSeatsNoPC' then 2 else 1 end) AS seat_count
+                count(a.id) AS seat_count
             FROM $table AS a
             INNER JOIN floors AS b ON b.Id = a.FloorId
             WHERE siteId = :site2
-              AND Project IS NOT NULL
+              AND Project IS NOT NULL and ltrim(rtrim(project)) <> ''
               AND Scenario IS NULL
-              AND dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'";
-
-      // Add optional condition to second SELECT
+              AND dateValid <= getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time'
+              and tag in (
+                            'Dedicated'
+                            ,'Shared'
+                            ,'Blocked'
+                            ,'Support'
+                            ,'Non Prod'
+                            ,'Unassigned'
+                         )";
       if ($this->dateValid !== null) {
         $sql2 .= " AND DateValid = :dateValid2";
       }
