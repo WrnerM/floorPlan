@@ -10,8 +10,15 @@ class Summary
   public function getSummary()
   {
     try {
+      $table = "positions_active";
       $where = " and dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)";
       if ($this->dateValid !== null) {
+        $where = " and dateValid = :dateValid";
+        $date = new DateTime($this->dateValid); 
+        $now = new DateTime(); 
+        if($date < $now){
+          $table = "positions";
+        }
         $sql = "SELECT 1 from floors where scenario is null and dateValid = :dateValid";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':dateValid', $this->dateValid, PDO::PARAM_STR);
@@ -33,7 +40,7 @@ class Summary
       }
 
       $sql = "SELECT siteid, case when tag = 'Non Prod' then 'NonProd' else tag end as tag, 
-              count(a.id) as count from positions_active a 
+              count(a.id) as count from $table a 
                 inner join floors b on a.FloorId = b.id 
                 where scenario is null and project is not null 
               and ltrim(rtrim(project)) <> ''
