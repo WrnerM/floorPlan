@@ -6,7 +6,7 @@ class HistoricalDates
   public $name = null;
   public $siteId = null;
 
-  public function getHistoricalDates()
+  public function getHistoricalDates() 
   {
 
     try {

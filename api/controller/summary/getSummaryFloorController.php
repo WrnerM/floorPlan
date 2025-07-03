@@ -26,46 +26,58 @@ if (isset($_GET['site'])) {
   $output = [];
   if (isset($data['error']) == false) {
     if (count($data) > 0) {
-      $output = array(
-        'overall_total' => [],
-        'floors' => []
-      );
+      $tags = ['Dedicated', 'Shared', 'Blocked', 'Support', 'NonProd', 'Unassigned'];
 
+      $output = [
+          "overall_total" => array_fill_keys(array_merge($tags, ["total_seats"]), 0),
+          "floors" => []
+      ];
       foreach ($data as $row) {
-        $name = $row['name'];
+          $floor = $row['name'];       
+          $project = $row['project'];  
+          $tag = $row['tag'];        
+          $count = (int)$row['count'];
 
-        if (!isset($output['floors'][$name])) {
-          $output['floors'][$name] = [
-            'name' => $name,
-            'total' => [],
-            'details' => []
-          ];
-        }
+          if (!in_array($tag, $tags)) continue;
 
-        foreach ($row as $key => $value) {
-          if ($key === 'name' || $key === 'project') continue;
-
-          if($key == "Shared" || $key == "SharedSeatsNoPC"){
-            $value *= 2;
+          if (!isset($output['floors'][$floor])) {
+              $output['floors'][$floor] = [
+                  "name" => $floor,
+                  "total" => array_fill_keys(array_merge($tags, ["total_seats"]), 0),
+                  "details" => []
+              ];
           }
 
-          if (!isset($output['floors'][$name]['total'][$key])) {
-            $output['floors'][$name]['total'][$key] = 0;
+          $floorRef = &$output['floors'][$floor];
+
+          $detailIndex = null;
+          foreach ($floorRef['details'] as $i => $detail) {
+              if ($detail['project'] === $project) {
+                  $detailIndex = $i;
+                  break;
+              }
           }
 
-          $output['floors'][$name]['total'][$key] += (int) $value;
-
-          if (!isset($output['overall_total'][$key])) {
-            $output['overall_total'][$key] = 0;
+          if ($detailIndex === null) {
+              $detail = array_fill_keys($tags, "0");
+              $detail['name'] = $floor;
+              $detail['project'] = $project;
+              $detail[$tag] = (string)$count;
+              $floorRef['details'][] = $detail;
+          } else {
+              $floorRef['details'][$detailIndex][$tag] = (string)$count;
           }
-
-          $output['overall_total'][$key] += (int) $value;
-        }
-
-        $row['Shared'] *= 2;
-        $row['SharedSeatsNoPC'] *= 2;
-        $output['floors'][$name]['details'][] = $row;
+          $floorRef['total'][$tag] += $count;
+          $output['overall_total'][$tag] += $count;
       }
+      foreach ($output['floors'] as &$floor) {
+          foreach ($floor['details'] as &$detail) {
+              $detail['total_seats'] = (string)array_sum(array_map('intval', array_intersect_key($detail, array_flip($tags))));
+          }
+          $floor['total']['total_seats'] = array_sum(array_intersect_key($floor['total'], array_flip($tags)));
+      }
+
+      $output['overall_total']['total_seats'] = array_sum(array_intersect_key($output['overall_total'], array_flip($tags)));
     }
   }
   $response = $output;

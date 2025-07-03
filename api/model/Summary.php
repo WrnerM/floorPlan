@@ -12,9 +12,29 @@ class Summary
     $sql = null;
 
     try {
+      // $where = "";
+      // if ($this->dateValid !== null) {
+      //   $where .= " AND DateValid = :dateValid";
+      // }
 
-      $sql = "exec [usp_site_summary] @dateValid = '{$this->dateValid}'";
+      $sql = "SELECT siteid, case when tag = 'Non Prod' then 'NonProd' else tag end as tag, 
+              count(a.id) as count from positions_active a 
+                inner join floors b on a.FloorId = b.id 
+                where scenario is null and project is not null 
+              and ltrim(rtrim(project)) <> ''
+              and dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)
+              and tag in ('Dedicated'
+                            ,'Shared'
+                            ,'Blocked'
+                            ,'Support'
+                            ,'Non Prod'
+                            ,'Unassigned')
+              group by siteid, tag
+              ";
       $stmt = $this->db->prepare($sql);
+      // if ($this->dateValid !== null) {
+      //   $stmt->bindParam(':dateValid', $this->dateValid, PDO::PARAM_STR);
+      // }
       $stmt->execute();
       $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

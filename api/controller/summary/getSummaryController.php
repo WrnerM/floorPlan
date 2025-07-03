@@ -19,33 +19,46 @@ require('../../model/Summary.php');
 
 $summary = new Summary();
 $summary->db = $pdoConn;
-// $summary->site = isset($_GET['site']) ? $_GET['site'] : null;
 $summary->dateValid = isset($_GET['dateValid']) ? $_GET['dateValid'] : null;
 
 $data = $summary->getSummary();
 $output = [];
 
+$validTags = ['Dedicated', 'Shared', 'Blocked', 'Support', 'NonProd', 'Unassigned'];
+
+$totals = [];
+foreach ($validTags as $tag) {
+    $formattedKey = $tag;
+    $totals[$formattedKey] = 0;
+}
+
 if (isset($data['error']) == false) {
   if (count($data) > 0) {
-    $output = array(
-      'total' => [],
-      'details' => []
-    );
     foreach ($data as $row) {
-      foreach ($row as $key => $value) {
-        if ($key === 'siteid') continue;
-        if (!isset($output['total'][$key])) {
-          $output['total'][$key] = 0;
-        }
-        if($key == "Shared" || $key == "SharedSeatsNoPC"){
-          $value *= 2;
-        }
-        $output['total'][$key] += (int) $value;
+      $siteid = $row['siteid'];
+      $tag = $row['tag'];
+      $formattedKey = $tag;
+      $count = (int)$row['count'];
+  
+      if (!isset($sites[$siteid])) {
+          $sites[$siteid] = array_fill_keys(array_keys($totals), 0);
+          $sites[$siteid]['siteid'] = $siteid;
       }
-      $row['Shared'] *= 2;
-      $row['SharedSeatsNoPC'] *= 2;
-      $output['details'][] = $row;
+  
+      $sites[$siteid][$formattedKey] += $count;
+      $totals[$formattedKey] += $count;
     }
+    
+    $totals['total_seats'] = array_sum($totals);
+    
+    foreach ($sites as &$site) {
+        $site['total_seats'] = array_sum(array_intersect_key($site, $totals));
+    }
+
+    $output = [
+        'total' => $totals,
+        'details' => array_values($sites)
+    ];
   }
 
   $response = $output;
