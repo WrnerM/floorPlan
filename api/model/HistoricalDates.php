@@ -11,47 +11,33 @@ class HistoricalDates
 
     try {
 
-      $sql = "SELECT 
-                    f.FloorId,
-                    f.dateValid,
-                    f.comment,
-                    COALESCE(pa.ProjectDateDeprecated, pp.ProjectDateDeprecated) AS ProjectDateDeprecated
-                FROM (
-                    SELECT *,
+      $sql = "SELECT FloorId, dateValid, comment
+              FROM (
+                  SELECT *,
                         ROW_NUMBER() OVER (
                             PARTITION BY CAST(dateValid AS DATE) 
                             ORDER BY FloorId DESC
                         ) AS rowPerDate
-                    FROM (
-                        SELECT 
-                            id AS FloorId,
-                            dateValid,
-                            comment,
-                            ROW_NUMBER() OVER (
-                                PARTITION BY name, siteid 
-                                ORDER BY dateValid DESC
-                            ) AS rowNum
-                        FROM floors
-                        WHERE 
-                            CAST(dateValid AS DATE) >= '2024-01-01'
-                            AND scenario IS NULL
-                            AND name = :name 
-                            AND siteId = :siteId
-                    ) AS x
-                    WHERE rowNum > 1
-                ) AS f
-
-                LEFT JOIN Positions_Active pa
-                    ON CAST(f.dateValid AS DATE) = pa.ProjectDateDeprecated
-                    AND pa.ProjectDateDeprecated >= CAST(GETDATE() AS DATE)
-
-                LEFT JOIN Positions pp
-                    ON CAST(f.dateValid AS DATE) = pp.ProjectDateDeprecated
-                    AND pp.ProjectDateDeprecated < CAST(GETDATE() AS DATE)
-
-                WHERE f.rowPerDate = 1
-                ORDER BY f.dateValid DESC;
-
+                  FROM (
+                      SELECT 
+                          id AS FloorId,
+                          dateValid,
+                          comment,
+                          ROW_NUMBER() OVER (
+                              PARTITION BY name, siteid 
+                              ORDER BY dateValid DESC
+                          ) AS rowNum
+                      FROM floors
+                      WHERE 
+                          CAST(dateValid AS DATE) >= '2024-01-01'
+                          AND scenario IS NULL
+                          AND CAST(dateValid AS DATE) < CAST(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time' AS DATE)
+                          AND name = :name and siteId = :siteId
+                  ) AS x
+                  WHERE rowNum > 1
+              ) AS deduped
+              WHERE rowPerDate = 1
+              ORDER BY dateValid DESC;
         ";
 
       $stmt = $this->db->prepare($sql);
