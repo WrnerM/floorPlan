@@ -15,7 +15,7 @@ class SummaryAccount
       $table = "positions_active";
       $where = " and dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)";
       if ($this->dateValid !== null) {
-        $where = " and dateValid = :dateValid";
+        // $where = " and dateValid = :dateValid";
         $date = new DateTime($this->dateValid); 
         $now = new DateTime(); 
         if($date < $now){
