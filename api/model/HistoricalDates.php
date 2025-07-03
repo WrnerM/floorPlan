@@ -23,7 +23,6 @@ class HistoricalDates
 
                 union
 
-
                 select name, SiteId, dateValid as DateTimeValid, id as FloorId, Comment, cast(dateValid as date) as datevalid
                 from floors where dateValid >= cast(getutcdate() at time zone 'utc' at time zone 'Singapore Standard Time' as datetime) 
                 and name is not null and LTRIM(RTRIM(name)) <> ''
@@ -33,7 +32,7 @@ class HistoricalDates
                 select FloorId, dateValid, comment from (
 
                 select *, ROW_NUMBER() over(partition by name, siteId, dateValid order by dateTimeValid desc) d from cte
-
+                where name = :name and siteId = :siteId 
                 ) as e where d = 1";
 
       $stmt = $this->db->prepare($sql);

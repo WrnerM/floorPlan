@@ -13,8 +13,33 @@ class SummaryAccount
   {
     try {
       $table = "Positions_Active";
+      $where = " and dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)";
       if ($this->dateValid !== null) {
-        $table = "Positions";
+        $where = "";
+        $date = new DateTime($this->dateValid); 
+        $now = new DateTime(); 
+        if($date < $now){
+          $table = "Positions";
+        }
+
+        $sql = "SELECT 1 from floors where scenario is null and dateValid = :dateValid";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':dateValid', $this->dateValid, PDO::PARAM_STR);
+        $stmt->execute();
+        if ($stmt->rowCount() <= 0) {
+          $sql = "SELECT TOP 1 dateValid from floors where
+                  scenario is null and dateValid <= :dateValid 
+                  order by dateValid desc";
+          $stmt = $this->db->prepare($sql);
+          $stmt->bindParam(':dateValid', $this->dateValid, PDO::PARAM_STR);
+          $stmt->execute();
+          $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+          if($stmt->rowCount() > 0){
+            foreach($data as $row){
+              $this->dateValid = $row['dateValid'];
+            }
+          }
+        }
       }
 
       $sql1 = "SELECT Project as account, 
@@ -24,7 +49,6 @@ class SummaryAccount
             WHERE siteId = :site1 
               and Project is not null and ltrim(rtrim(project)) <> ''
               and scenario is null
-              AND dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)
               and tag in (
                             'Dedicated'
                             ,'Shared'
@@ -32,7 +56,9 @@ class SummaryAccount
                             ,'Support'
                             ,'Non Prod'
                             ,'Unassigned'
-                         )";
+                         )
+              $where";
+                         
 
       if ($this->dateValid !== null) {
         $sql1 .= " AND DateValid = :dateValid1";
@@ -48,7 +74,6 @@ class SummaryAccount
             WHERE siteId = :site2
               AND Project IS NOT NULL and ltrim(rtrim(project)) <> ''
               AND Scenario IS NULL
-              AND dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)
               and tag in (
                             'Dedicated'
                             ,'Shared'
@@ -56,13 +81,14 @@ class SummaryAccount
                             ,'Support'
                             ,'Non Prod'
                             ,'Unassigned'
-                         )";
+                         )
+            $where";
       if ($this->dateValid !== null) {
         $sql2 .= " AND DateValid = :dateValid2";
       }
 
       // Combine both SELECTs
-      $sql = $sql1 . " UNION ALL " . $sql2;
+      $sql = $sql1 . " UNION " . $sql2;
 
       $stmt = $this->db->prepare($sql);
       $stmt->bindParam(':site1', $this->site, PDO::PARAM_STR);
