@@ -10,23 +10,16 @@ class Summary
   public function getSummary()
   {
     try {
-      $table = "positions_active";
       if ($this->dateValid !== null) {
-        $where = " and dateValid = :dateValid";
-        $date = new DateTime($this->dateValid); 
-        $now = new DateTime(); 
-        if($date < $now){
-          $table = "positions";
-        }
-
         $sql = ";WITH cte as (
                 SELECT * from (
                   SELECT id, SiteId, row_number() over(partition by name, siteid order by dateValid desc) as rowNum from floors
                     where scenario is null and dateValid <= :dateValid
                   ) as x where rowNum = 1
                 )
+                SELECT siteid, tag, sum(count) as count from (
                 SELECT siteid, case when tag = 'Non Prod' then 'NonProd' else tag end as tag,
-                        count(a.id) as count from  $table a 
+                        count(a.id) as count from positions_active a 
                         inner join cte b on a.FloorId = b.id 
                         where project is not null 
                       and ltrim(rtrim(project)) <> ''
@@ -37,10 +30,23 @@ class Summary
                                   ,'Non Prod'
                                   ,'Unassigned')
                       group by siteid, tag
-              order by siteid";
+                UNION 
+                SELECT siteid, case when tag = 'Non Prod' then 'NonProd' else tag end as tag,
+                        count(a.id) as count from positions a 
+                        inner join cte b on a.FloorId = b.id 
+                        where project is not null 
+                      and ltrim(rtrim(project)) <> ''
+                      and tag in ('Dedicated'
+                                  ,'Shared'
+                                  ,'Blocked'
+                                  ,'Support'
+                                  ,'Non Prod'
+                                  ,'Unassigned')
+                      group by siteid, tag
+                ) as x group by siteid, tag order by siteid";
       }else{
         $sql = "SELECT siteid, case when tag = 'Non Prod' then 'NonProd' else tag end as tag, 
-              count(a.id) as count from $table a 
+              count(a.id) as count from positions_active a 
                 inner join floors b on a.FloorId = b.id 
                 where scenario is null and project is not null 
               and ltrim(rtrim(project)) <> ''

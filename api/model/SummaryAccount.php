@@ -12,28 +12,39 @@ class SummaryAccount
   public function getSummaryAccount()
   {
     try {
-      $table = "positions_active";
-      $where = " and dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)";
       if ($this->dateValid !== null) {
-        $date = new DateTime($this->dateValid); 
-        $now = new DateTime(); 
-        if($date < $now){
-          $table = "positions";
-        }
-
         $sql = ";WITH cte as (
                 SELECT * from (
                   SELECT id, row_number() over(partition by name, siteid order by dateValid desc) as rowNum from floors
                     where scenario is null and siteid = :site and dateValid <= :dateValid
                   ) as x where rowNum = 1
                 )
-
+                SELECT account, sum(seat_count) as seat_count from (
+                SELECT * FROM (
                 SELECT Project as account, 
-                      count(a.id) as seat_count 
-                    FROM $table as a
-                    INNER JOIN cte as b ON b.Id = a.FloorId
-                    WHERE Project is not null and ltrim(rtrim(project)) <> ''
-                    and tag in (
+                  count(a.id) as seat_count 
+                  FROM positions as a
+                  INNER JOIN cte as b ON b.Id = a.FloorId
+                  WHERE Project is not null and ltrim(rtrim(project)) <> ''
+                      and tag in (
+                                      'Dedicated'
+                                      ,'Shared'
+                                      ,'Blocked'
+                                      ,'Support'
+                                      ,'Non Prod'
+                                      ,'Unassigned'
+                                  )
+                  GROUP BY Project 
+                
+                UNION 
+
+                SELECT 
+                        'total' AS account,
+                        count(a.id) AS seat_count
+                    FROM positions AS a
+                    INNER JOIN cte AS b ON b.Id = a.FloorId
+                    WHERE Project IS NOT NULL and ltrim(rtrim(project)) <> ''
+                      and tag in (
                                     'Dedicated'
                                     ,'Shared'
                                     ,'Blocked'
@@ -41,27 +52,49 @@ class SummaryAccount
                                     ,'Non Prod'
                                     ,'Unassigned'
                                 )
-                GROUP BY Project 
 
-                UNION 
+                    ) as x 
+              UNION 
 
-                SELECT 'total' AS account,
-                        count(a.id) AS seat_count
-                    FROM $table AS a
-                    INNER JOIN cte AS b ON b.Id = a.FloorId
-                    WHERE Project IS NOT NULL and ltrim(rtrim(project)) <> ''
-                    and tag in (
-                                  'Dedicated'
-                                  ,'Shared'
-                                  ,'Blocked'
-                                  ,'Support'
-                                  ,'Non Prod'
-                                  ,'Unassigned'
-                              )";
+                SELECT * FROM (
+                SELECT Project as account, 
+                  count(a.id) as seat_count 
+                  FROM positions_active as a
+                  INNER JOIN cte as b ON b.Id = a.FloorId
+                  WHERE Project is not null and ltrim(rtrim(project)) <> ''
+                      and tag in (
+                                      'Dedicated'
+                                      ,'Shared'
+                                      ,'Blocked'
+                                      ,'Support'
+                                      ,'Non Prod'
+                                      ,'Unassigned'
+                                  )
+                  GROUP BY Project 
+                  
+                  UNION 
+
+                  SELECT 
+                          'total' AS account,
+                          count(a.id) AS seat_count
+                      FROM positions_active AS a
+                      INNER JOIN cte AS b ON b.Id = a.FloorId
+                      WHERE Project IS NOT NULL and ltrim(rtrim(project)) <> ''
+                        and tag in (
+                                      'Dedicated'
+                                      ,'Shared'
+                                      ,'Blocked'
+                                      ,'Support'
+                                      ,'Non Prod'
+                                      ,'Unassigned'
+                                  )
+
+                      ) as y 
+                  ) as z group by account";
       }else{
         $sql = " SELECT Project as account, 
                   count(a.id) as seat_count 
-                  FROM $table as a
+                  FROM positions_active as a
                   INNER JOIN floors as b ON b.Id = a.FloorId
                   WHERE siteId = :site1
                       and Project is not null and ltrim(rtrim(project)) <> ''
