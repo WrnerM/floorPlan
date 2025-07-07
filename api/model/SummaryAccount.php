@@ -112,7 +112,6 @@ class SummaryAccount
                                       ,'Non Prod'
                                       ,'Unassigned'
                                   )
-                        and dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)
                   GROUP BY Project
 
                   UNION 
@@ -130,8 +129,7 @@ class SummaryAccount
                                       ,'Support'
                                       ,'Non Prod'
                                       ,'Unassigned'
-                                  )
-                  and dateValid <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as datetime)";
+                                  )";
       }
 
       $stmt = $this->db->prepare($sql);

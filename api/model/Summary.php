@@ -47,7 +47,7 @@ class Summary
       }else{
         $sql = ";WITH cte as (
                 SELECT * from (
-                  SELECT id, row_number() over(partition by name, siteid order by dateValid desc) as rowNum from floors
+                  SELECT id, siteid, row_number() over(partition by name, siteid order by dateValid desc) as rowNum from floors
                     where scenario is null and cast(dateValid as date) <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as date)
                   ) as x where rowNum = 1
                 )
