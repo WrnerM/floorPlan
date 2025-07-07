@@ -92,13 +92,18 @@ class SummaryAccount
                       ) as y 
                   ) as z group by account";
       }else{
-        $sql = " SELECT Project as account, 
+        $sql = ";WITH cte as (
+                SELECT * from (
+                  SELECT id, row_number() over(partition by name, siteid order by dateValid desc) as rowNum from floors
+                    where scenario is null and siteid = :site
+                    and cast(dateValid as date) <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as date)
+                  ) as x where rowNum = 1
+                )
+                SELECT Project as account, 
                   count(a.id) as seat_count 
                   FROM positions_active as a
-                  INNER JOIN floors as b ON b.Id = a.FloorId
-                  WHERE siteId = :site1
-                      and Project is not null and ltrim(rtrim(project)) <> ''
-                      and scenario is null
+                  INNER JOIN cte as b ON b.Id = a.FloorId
+                  WHERE Project is not null and ltrim(rtrim(project)) <> ''
                       and tag in (
                                       'Dedicated'
                                       ,'Shared'
@@ -116,10 +121,8 @@ class SummaryAccount
                           'total' AS account,
                           count(a.id) AS seat_count
                       FROM positions_active AS a
-                      INNER JOIN floors AS b ON b.Id = a.FloorId
-                      WHERE siteId = :site2
-                        and Project IS NOT NULL and ltrim(rtrim(project)) <> ''
-                        and Scenario IS NULL
+                      INNER JOIN cte AS b ON b.Id = a.FloorId
+                      WHERE Project IS NOT NULL and ltrim(rtrim(project)) <> ''
                         and tag in (
                                       'Dedicated'
                                       ,'Shared'
@@ -132,14 +135,10 @@ class SummaryAccount
       }
 
       $stmt = $this->db->prepare($sql);
+      $stmt->bindParam(':site', $this->site, PDO::PARAM_STR);
       if ($this->dateValid !== null) {
         $stmt->bindParam(':dateValid', $this->dateValid, PDO::PARAM_STR);
-        $stmt->bindParam(':site', $this->site, PDO::PARAM_STR);
-      }else{
-        $stmt->bindParam(':site1', $this->site, PDO::PARAM_STR);
-        $stmt->bindParam(':site2', $this->site, PDO::PARAM_STR);
       }
-
       $stmt->execute();
       $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
