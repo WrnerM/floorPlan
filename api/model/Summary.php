@@ -18,7 +18,7 @@ class Summary
                   ) as x where rowNum = 1
                 )
                 SELECT siteid, tag, sum(count) as count from (
-                SELECT siteid, case when tag = 'Non Prod' then 'NonProd' else tag end as tag,
+                SELECT siteid, tag,
                         count(a.id) as count from positions_active a 
                         inner join cte b on a.FloorId = b.id 
                         where project is not null 
@@ -27,11 +27,11 @@ class Summary
                                   ,'Shared'
                                   ,'Blocked'
                                   ,'Support'
-                                  ,'Non Prod'
+                                  ,'NonProd'
                                   ,'Unassigned')
                       group by siteid, tag
                 UNION 
-                SELECT siteid, case when tag = 'Non Prod' then 'NonProd' else tag end as tag,
+                SELECT siteid, tag,
                         count(a.id) as count from positions a 
                         inner join cte b on a.FloorId = b.id 
                         where project is not null 
@@ -40,7 +40,7 @@ class Summary
                                   ,'Shared'
                                   ,'Blocked'
                                   ,'Support'
-                                  ,'Non Prod'
+                                  ,'NonProd'
                                   ,'Unassigned')
                       group by siteid, tag
                 ) as x group by siteid, tag order by siteid";
@@ -51,7 +51,7 @@ class Summary
                     where scenario is null and cast(dateValid as date) <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as date)
                   ) as x where rowNum = 1
                 )
-                SELECT siteid, case when tag = 'Non Prod' then 'NonProd' else tag end as tag, 
+                SELECT siteid, tag, 
                 count(a.id) as count from positions_active a 
                   inner join cte b on a.FloorId = b.id 
                   where project is not null 
@@ -60,7 +60,7 @@ class Summary
                               ,'Shared'
                               ,'Blocked'
                               ,'Support'
-                              ,'Non Prod'
+                              ,'NonProd'
                               ,'Unassigned')
                 group by siteid, tag
                 order by siteid";

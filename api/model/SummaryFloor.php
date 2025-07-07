@@ -19,7 +19,7 @@ class SummaryFloor
                   ) as x where rowNum = 1
                 )
                 SELECT name, project, tag, sum(count) as count from (
-                SELECT name, project, case when tag = 'Non Prod' then 'NonProd' else tag end as tag,
+                SELECT name, project, tag,
                         count(a.id) as count from positions_active a 
                         inner join cte b on a.FloorId = b.id 
                         where project is not null 
@@ -28,12 +28,12 @@ class SummaryFloor
                                   ,'Shared'
                                   ,'Blocked'
                                   ,'Support'
-                                  ,'Non Prod'
+                                  ,'NonProd'
                                   ,'Unassigned')
                       group by name, project, tag
                 UNION 
                   
-                SELECT name, project, case when tag = 'Non Prod' then 'NonProd' else tag end as tag,
+                SELECT name, project, tag,
                         count(a.id) as count from positions a 
                         inner join cte b on a.FloorId = b.id 
                         where project is not null 
@@ -42,7 +42,7 @@ class SummaryFloor
                                   ,'Shared'
                                   ,'Blocked'
                                   ,'Support'
-                                  ,'Non Prod'
+                                  ,'NonProd'
                                   ,'Unassigned')
                       group by name, project, tag
                 ) as x group by name, project, tag";
@@ -54,7 +54,7 @@ class SummaryFloor
                     and cast(dateValid as date) <= cast(getutcdate() at time zone 'UTC' at time zone 'Singapore Standard Time' as date)
                   ) as x where rowNum = 1
                 )
-                SELECT name, project, case when tag = 'Non Prod' then 'NonProd' else tag end as tag, 
+                SELECT name, project, tag, 
                   count(a.id) as count from positions_active a 
                   inner join cte b on a.FloorId = b.id 
                   where project is not null 
@@ -63,7 +63,7 @@ class SummaryFloor
                             ,'Shared'
                             ,'Blocked'
                             ,'Support'
-                            ,'Non Prod'
+                            ,'NonProd'
                             ,'Unassigned')
                 group by name, project, tag
                 order by name";

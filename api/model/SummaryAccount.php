@@ -31,7 +31,7 @@ class SummaryAccount
                                       ,'Shared'
                                       ,'Blocked'
                                       ,'Support'
-                                      ,'Non Prod'
+                                      ,'NonProd'
                                       ,'Unassigned'
                                   )
                   GROUP BY Project 
@@ -49,7 +49,7 @@ class SummaryAccount
                                     ,'Shared'
                                     ,'Blocked'
                                     ,'Support'
-                                    ,'Non Prod'
+                                    ,'NonProd'
                                     ,'Unassigned'
                                 )
 
@@ -67,7 +67,7 @@ class SummaryAccount
                                       ,'Shared'
                                       ,'Blocked'
                                       ,'Support'
-                                      ,'Non Prod'
+                                      ,'NonProd'
                                       ,'Unassigned'
                                   )
                   GROUP BY Project 
@@ -85,7 +85,7 @@ class SummaryAccount
                                       ,'Shared'
                                       ,'Blocked'
                                       ,'Support'
-                                      ,'Non Prod'
+                                      ,'NonProd'
                                       ,'Unassigned'
                                   )
 
@@ -109,7 +109,7 @@ class SummaryAccount
                                       ,'Shared'
                                       ,'Blocked'
                                       ,'Support'
-                                      ,'Non Prod'
+                                      ,'NonProd'
                                       ,'Unassigned'
                                   )
                   GROUP BY Project
@@ -127,7 +127,7 @@ class SummaryAccount
                                       ,'Shared'
                                       ,'Blocked'
                                       ,'Support'
-                                      ,'Non Prod'
+                                      ,'NonProd'
                                       ,'Unassigned'
                                   )";
       }
