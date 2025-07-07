@@ -115,7 +115,7 @@ class SummaryAccount
                   SELECT 
                           'total' AS account,
                           count(a.id) AS seat_count
-                      FROM $table AS a
+                      FROM positions_active AS a
                       INNER JOIN floors AS b ON b.Id = a.FloorId
                       WHERE siteId = :site2
                         and Project IS NOT NULL and ltrim(rtrim(project)) <> ''
