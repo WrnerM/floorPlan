@@ -16,7 +16,7 @@ class SummaryAccount
         $sql = ";WITH cte as (
                 SELECT * from (
                   SELECT id, row_number() over(partition by name, siteid order by dateValid desc) as rowNum from floors
-                    where scenario is null and siteid = :site and dateValid <= :dateValid
+                    where scenario is null and siteid = :site and cast(dateValid as date) <= :dateValid
                   ) as x where rowNum = 1
                 )
                 SELECT account, sum(seat_count) as seat_count from (
