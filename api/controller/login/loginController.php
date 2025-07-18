@@ -21,7 +21,6 @@ $login = new LoginClass;
 $login->db = $pdoConn;
 
 $login->userNT = $_GET['userNT'];
-$login->password = $_GET['password'];
 
 $response = $login->login();
 
