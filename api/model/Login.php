@@ -3,79 +3,51 @@
 class LoginClass{
     public $db = null;
     public $userNT = null;
-    public $password = null;
     public $bms_ident = null;
    
 
-    public function login(){
-
+    public function login()
+    {
         $response = [];
 
-        if($this->userNT == "admin" && $this->password == "admin"){
-            return array(
+        // Hardcoded admin login
+        if ($this->userNT === "admin") {
+            return [
                 "success" => 1,
                 "bms_ident" => "1",
                 "full_name" => "Admin",
                 "nt" => "1",
                 "user_email" => "admin@teleperformanceusa.com",
                 "user_role" => "Admin"
-            );
+            ];
         }
-       
-        $base_url = 'https://www.wblt.ccms.teleperformance.com/authentication';
-        $c = curl_init();
 
-        curl_setopt($c, CURLOPT_URL, $base_url);
-        curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($c, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($c, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($c, CURLOPT_USERPWD, $this->userNT.":".$this->password);
+        // Check user in DB
+        $response = $this->getAdmin();
         
-        curl_exec($c);
-
-        $status = curl_getinfo($c, CURLINFO_HTTP_CODE);
-
-        curl_close($c);
-        
-        if($status == 200){
-            // $response = $this->getUser();
-            // if(count($response) <= 0){
-                $response = $this->getAdmin();
-                if(count($response) <= 0){
-                    $response = array(
-                        "success" => 0,
-                        "message" => "Please contact system admin to register your account"
-                    );
-
-                    return $response;
-                }
-            // }
-
-            if(count($response) > 0 && $response["success"] == 1){
-                $this->bms_ident = $response['bms_ident'];
-                $this->insertlogs();
-            }            
-        }else {
-            $response = array(
+        if (count($response) <= 0) {
+            return [
                 "success" => 0,
-                "message" => "Invalid User Credentials"
-            );
+                "message" => "Please contact system admin to register your account"
+            ];
         }
-        
+
+        if ($response["success"] == 1) {
+            $this->bms_ident = $response['bms_ident'];
+            $this->insertlogs();
+        }
+
         return $response;
-
     }
-
 
     private function getAdmin(): array
     {
-
         $response = [];
-        try { 
 
+        try {
             $sql = "SELECT bms_ident, full_name, nt, user_email, user_role
-                            FROM users WHERE nt=:nt";
+                    FROM users
+                    WHERE nt = :nt";
 
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':nt', $this->userNT, PDO::PARAM_STR);
@@ -85,13 +57,12 @@ class LoginClass{
             if ($stmt->rowCount() > 0) {
                 $response = $data[0];
                 $response['success'] = 1;
-            } 
-
+            }
         } catch (PDOException $e) {
-            $response = array(
+            $response = [
                 "success" => 0,
                 "message" => $e->getMessage()
-            );
+            ];
         }
 
         return $response;
